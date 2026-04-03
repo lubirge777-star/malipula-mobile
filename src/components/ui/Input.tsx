@@ -66,7 +66,7 @@ export function Input({
         ]}
       >
         {icon && (
-          <View style={[styles.iconLeft, hasError ? { color: Colors.error } : { color: theme.textSecondary }]}>
+          <View style={[styles.iconLeft, (hasError ? { color: Colors.error } : { color: theme.textSecondary }) as any]}>
             {icon}
           </View>
         )}

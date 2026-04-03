@@ -12,36 +12,49 @@ import { useRouter } from 'expo-router';
 const GOLD = '#C9A962';
 const NAVY = '#1B2A4A';
 
-const settingsGroups = [
+type SettingItem = {
+  id: string;
+  icon: any;
+  label: string;
+  type: 'toggle' | 'detail';
+  value?: string;
+};
+
+type SettingGroup = {
+  title: string;
+  items: SettingItem[];
+};
+
+const settingsGroups: SettingGroup[] = [
   {
     title: 'Appearance',
     items: [
-      { id: 'darkMode', icon: 'moon-outline' as const, label: 'Dark Mode', type: 'toggle' as const },
-      { id: 'language', icon: 'globe-outline' as const, label: 'Language', type: 'detail' as const, value: 'English' },
+      { id: 'darkMode', icon: 'moon-outline', label: 'Dark Mode', type: 'toggle' },
+      { id: 'language', icon: 'globe-outline', label: 'Language', type: 'detail', value: 'English' },
     ],
   },
   {
     title: 'Notifications',
     items: [
-      { id: 'pushNotif', icon: 'notifications-outline' as const, label: 'Push Notifications', type: 'toggle' as const },
-      { id: 'emailNotif', icon: 'mail-outline' as const, label: 'Email Notifications', type: 'toggle' as const },
-      { id: 'promoNotif', icon: 'pricetag-outline' as const, label: 'Promotions & Offers', type: 'toggle' as const },
+      { id: 'pushNotif', icon: 'notifications-outline', label: 'Push Notifications', type: 'toggle' },
+      { id: 'emailNotif', icon: 'mail-outline', label: 'Email Notifications', type: 'toggle' },
+      { id: 'promoNotif', icon: 'pricetag-outline', label: 'Promotions & Offers', type: 'toggle' },
     ],
   },
   {
     title: 'Privacy & Security',
     items: [
-      { id: 'biometric', icon: 'finger-print-outline' as const, label: 'Biometric Login', type: 'toggle' as const },
-      { id: 'changePass', icon: 'lock-closed-outline' as const, label: 'Change Password', type: 'detail' as const },
-      { id: 'twoFactor', icon: 'shield-checkmark-outline' as const, label: 'Two-Factor Auth', type: 'toggle' as const },
+      { id: 'biometric', icon: 'finger-print-outline', label: 'Biometric Login', type: 'toggle' },
+      { id: 'changePass', icon: 'lock-closed-outline', label: 'Change Password', type: 'detail' },
+      { id: 'twoFactor', icon: 'shield-checkmark-outline', label: 'Two-Factor Auth', type: 'toggle' },
     ],
   },
   {
     title: 'Data',
     items: [
-      { id: 'currency', icon: 'cash-outline' as const, label: 'Currency', type: 'detail' as const, value: 'TZS' },
-      { id: 'clearCache', icon: 'trash-outline' as const, label: 'Clear Cache', type: 'detail' as const, value: '24.5 MB' },
-      { id: 'exportData', icon: 'download-outline' as const, label: 'Export My Data', type: 'detail' as const },
+      { id: 'currency', icon: 'cash-outline', label: 'Currency', type: 'detail', value: 'TZS' },
+      { id: 'clearCache', icon: 'trash-outline', label: 'Clear Cache', type: 'detail', value: '24.5 MB' },
+      { id: 'exportData', icon: 'download-outline', label: 'Export My Data', type: 'detail' },
     ],
   },
 ];

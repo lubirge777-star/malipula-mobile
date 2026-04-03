@@ -13,28 +13,41 @@ import { useRouter } from 'expo-router';
 const GOLD = '#C9A962';
 const NAVY = '#1B2A4A';
 
-const menuGroups = [
+type MenuItem = {
+  id: string;
+  icon: any;
+  label: string;
+  route: string;
+  badge?: string;
+};
+
+type MenuGroup = {
+  title: string;
+  items: MenuItem[];
+};
+
+const menuGroups: MenuGroup[] = [
   {
     title: 'My Shopping',
     items: [
-      { id: 'orders', icon: 'cube-outline' as const, label: 'My Orders', route: '/account/orders', badge: '2' },
-      { id: 'measurements', icon: 'resize-outline' as const, label: 'My Measurements', route: '/account/measurements' },
-      { id: 'wishlist', icon: 'heart-outline' as const, label: 'Wishlist', route: '/account/wishlist', badge: '5' },
-      { id: 'addresses', icon: 'location-outline' as const, label: 'Saved Addresses', route: '/account/addresses' },
+      { id: 'orders', icon: 'cube-outline', label: 'My Orders', route: '/account/orders', badge: '2' },
+      { id: 'measurements', icon: 'resize-outline', label: 'My Measurements', route: '/account/measurements' },
+      { id: 'wishlist', icon: 'heart-outline', label: 'Wishlist', route: '/account/wishlist', badge: '5' },
+      { id: 'addresses', icon: 'location-outline', label: 'Saved Addresses', route: '/account/addresses' },
     ],
   },
   {
     title: 'Preferences',
     items: [
-      { id: 'notifications', icon: 'notifications-outline' as const, label: 'Notifications', route: '' },
-      { id: 'settings', icon: 'settings-outline' as const, label: 'App Settings', route: '/account/settings' },
+      { id: 'notifications', icon: 'notifications-outline', label: 'Notifications', route: '' },
+      { id: 'settings', icon: 'settings-outline', label: 'App Settings', route: '/account/settings' },
     ],
   },
   {
     title: 'Support',
     items: [
-      { id: 'help', icon: 'help-circle-outline' as const, label: 'Help & Support', route: '' },
-      { id: 'about', icon: 'information-circle-outline' as const, label: 'About Malipula', route: '' },
+      { id: 'help', icon: 'help-circle-outline', label: 'Help & Support', route: '' },
+      { id: 'about', icon: 'information-circle-outline', label: 'About Malipula', route: '' },
     ],
   },
 ];

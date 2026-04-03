@@ -7,7 +7,7 @@ import {
   View,
   Image,
   Text,
-  Pressable,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -36,14 +36,14 @@ export function ProductCard({
 
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
-  const displayPrice = hasDiscount ? product.salePrice : product.basePrice;
+  const displayPrice = (hasDiscount ? product.salePrice : product.basePrice) ?? 0;
 
   const formatPrice = (price: number) => {
     return `ZMW ${price.toLocaleString()}`;
   };
 
   return (
-    <Pressable
+    <TouchableOpacity
       style={[styles.container, { backgroundColor: theme.surface }, style]}
       onPress={() => onPress(product)}
       activeOpacity={0.85}
@@ -66,7 +66,7 @@ export function ProductCard({
 
         {/* Wishlist Button */}
         {onToggleWishlist && (
-          <Pressable
+          <TouchableOpacity
             style={styles.wishlistButton}
             onPress={(e) => {
               e.stopPropagation();
@@ -79,7 +79,7 @@ export function ProductCard({
               size={20}
               color={isWishlisted ? Colors.error : colorScheme === 'dark' ? '#FFFFFF' : '#333333'}
             />
-          </Pressable>
+          </TouchableOpacity>
         )}
       </View>
 
@@ -120,7 +120,7 @@ export function ProductCard({
           </View>
         )}
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 

@@ -4,8 +4,9 @@
 
 import React from 'react';
 import {
+  View,
   ScrollView,
-  Pressable,
+  TouchableOpacity,
   Text,
   StyleSheet,
   ViewStyle,
@@ -63,7 +64,7 @@ function SingleChip({ label, icon, isSelected, onPress }: SingleChipProps) {
   const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
 
   return (
-    <Pressable
+    <TouchableOpacity
       style={[
         styles.chip,
         {
@@ -86,7 +87,7 @@ function SingleChip({ label, icon, isSelected, onPress }: SingleChipProps) {
       >
         {label}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 

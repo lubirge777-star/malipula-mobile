@@ -5,15 +5,32 @@
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
-// Custom storage adapter for React Native using SecureStore
+// Custom storage adapter for React Native using SecureStore (native) or AsyncStorage (web fallback)
 const ReactNativeSecureStorage = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+  getItem: (key: string) => {
+    if (Platform.OS === 'web') {
+      return AsyncStorage.getItem(key);
+    }
+    return SecureStore.getItemAsync(key);
+  },
+  setItem: (key: string, value: string) => {
+    if (Platform.OS === 'web') {
+      return AsyncStorage.setItem(key, value);
+    }
+    return SecureStore.setItemAsync(key, value);
+  },
+  removeItem: (key: string) => {
+    if (Platform.OS === 'web') {
+      return AsyncStorage.removeItem(key);
+    }
+    return SecureStore.deleteItemAsync(key);
+  },
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

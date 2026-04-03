@@ -81,10 +81,10 @@ export function BottomSheet({
 
   const pan = Gesture.Pan()
     .onChange((event) => {
-      translateY.setValue(Math.max(0, translateY._value + event.changeY));
+      translateY.setValue(Math.max(0, (translateY as any)._value + event.changeY));
     })
     .onEnd(() => {
-      if (translateY._value > MAX_TRANSLATE_Y * 0.4) {
+      if ((translateY as any)._value > MAX_TRANSLATE_Y * 0.4) {
         closeSheet();
       } else {
         openSheet();

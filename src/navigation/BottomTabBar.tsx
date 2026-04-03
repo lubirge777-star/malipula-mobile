@@ -8,36 +8,36 @@ const TAB_ROUTES: TabRoute[] = [
   {
     name: 'home',
     label: 'Home',
-    icon: 'home-outline' as const,
-    activeIcon: 'home' as const,
+    icon: 'home-outline' as any,
+    activeIcon: 'home' as any,
     route: '/',
   },
   {
     name: 'shop',
     label: 'Shop',
-    icon: 'bag-outline' as const,
-    activeIcon: 'bag' as const,
+    icon: 'bag-outline' as any,
+    activeIcon: 'bag' as any,
     route: '/shop',
   },
   {
     name: 'bookings',
     label: 'Bookings',
-    icon: 'calendar-outline' as const,
-    activeIcon: 'calendar' as const,
+    icon: 'calendar-outline' as any,
+    activeIcon: 'calendar' as any,
     route: '/bookings',
   },
   {
     name: 'cart',
     label: 'Cart',
-    icon: 'cart-outline' as const,
-    activeIcon: 'cart' as const,
+    icon: 'cart-outline' as any,
+    activeIcon: 'cart' as any,
     route: '/cart',
   },
   {
     name: 'account',
     label: 'Account',
-    icon: 'person-outline' as const,
-    activeIcon: 'person' as const,
+    icon: 'person-outline' as any,
+    activeIcon: 'person' as any,
     route: '/account',
   },
 ];
@@ -86,7 +86,7 @@ export default function BottomTabBar({ state, navigation }: CustomTabBarProps) {
             >
               <View style={styles.iconWrapper}>
                 <Ionicons
-                  name={isFocused ? tabConfig.activeIcon : tabConfig.icon}
+                  name={(isFocused ? tabConfig.activeIcon : tabConfig.icon) as any}
                   size={22}
                   color={isFocused ? '#C9A962' : '#6B6361'}
                 />

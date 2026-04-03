@@ -3,7 +3,7 @@
 // ============================================
 
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getThemeColors, Spacing, Colors, Typography } from '../../theme';
@@ -54,13 +54,13 @@ export function EmptyState({
       )}
 
       {buttonText && onPress && (
-        <Pressable
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: Colors.gold }]}
           onPress={onPress}
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>{buttonText}</Text>
-        </Pressable>
+        </TouchableOpacity>
       )}
     </View>
   );

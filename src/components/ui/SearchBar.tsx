@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   TextInput,
-  Pressable,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -34,7 +34,7 @@ export function SearchBar({
   const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [internalValue, setInternalValue] = useState(controlledValue ?? '');
   const [isFocused, setIsFocused] = useState(false);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const isControlled = controlledValue !== undefined;
   const displayValue = isControlled ? controlledValue : internalValue;
@@ -106,7 +106,7 @@ export function SearchBar({
       />
 
       {displayValue.length > 0 && (
-        <Pressable
+        <TouchableOpacity
           onPress={handleClear}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -115,7 +115,7 @@ export function SearchBar({
             size={18}
             color={theme.textSecondary}
           />
-        </Pressable>
+        </TouchableOpacity>
       )}
     </View>
   );

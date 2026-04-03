@@ -30,12 +30,12 @@ const stories = [
 ];
 
 const categories = [
-  { id: '1', name: 'Suits', icon: 'business' as const, color: NAVY },
-  { id: '2', name: 'Shirts', icon: 'shirt' as const, color: '#2A3F6A' },
-  { id: '3', name: 'Trousers', icon: 'resize' as const, color: '#3A5080' },
-  { id: '4', name: 'Blazers', icon: 'briefcase' as const, color: '#4D3D1A' },
-  { id: '5', name: 'Kaftans', icon: 'culture' as const, color: '#8A6F30' },
-  { id: '6', name: 'Accessories', icon: 'watch' as const, color: '#A88A3E' },
+  { id: '1', name: 'Suits', icon: 'business' as any, color: NAVY },
+  { id: '2', name: 'Shirts', icon: 'shirt' as any, color: '#2A3F6A' },
+  { id: '3', name: 'Trousers', icon: 'resize' as any, color: '#3A5080' },
+  { id: '4', name: 'Blazers', icon: 'briefcase' as any, color: '#4D3D1A' },
+  { id: '5', name: 'Kaftans', icon: 'shirt-outline' as any, color: '#8A6F30' },
+  { id: '6', name: 'Accessories', icon: 'watch' as any, color: '#A88A3E' },
 ];
 
 const newArrivals = [
@@ -46,10 +46,10 @@ const newArrivals = [
 ];
 
 const whyChoose = [
-  { id: '1', icon: 'diamond' as const, title: 'Premium Fabrics', desc: 'Italian & English wool blends' },
-  { id: '2', icon: 'cut' as const, title: 'Master Tailoring', desc: '50+ years of craftsmanship' },
-  { id: '3', icon: 'calendar' as const, title: 'Easy Bookings', desc: 'Schedule fittings online' },
-  { id: '4', icon: 'truck' as const, title: 'Nationwide Delivery', desc: 'Across Tanzania' },
+  { id: '1', icon: 'ribbon-outline' as any, title: 'Premium Fabrics', desc: 'Italian & English wool blends' },
+  { id: '2', icon: 'cut-outline' as any, title: 'Master Tailoring', desc: '50+ years of craftsmanship' },
+  { id: '3', icon: 'calendar-outline' as any, title: 'Easy Bookings', desc: 'Schedule fittings online' },
+  { id: '4', icon: 'cube-outline' as any, title: 'Nationwide Delivery', desc: 'Across Tanzania' },
 ];
 
 export default function HomeScreen() {

@@ -149,7 +149,7 @@ export default function MeasurementsScreen() {
 
         {/* Tip */}
         <View className="bg-gold/5 rounded-2xl p-4 mt-4 flex-row gap-3">
-          <Ionicons name="lightbulb-outline" size={20} color={GOLD} />
+          <Ionicons name="bulb-outline" size={20} color={GOLD} />
           <View className="flex-1">
             <Text className="text-navy text-sm font-medium mb-0.5">Pro Tip</Text>
             <Text className="text-charcoal/60 text-xs leading-relaxed">

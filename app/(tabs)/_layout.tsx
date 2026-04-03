@@ -40,7 +40,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="shop"
+        name="shop/index"
         options={{
           title: 'Shop',
           tabBarIcon: ({ color, focused }) => (
@@ -49,7 +49,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="bookings"
+        name="bookings/index"
         options={{
           title: 'Bookings',
           tabBarIcon: ({ color, focused }) => (
@@ -58,7 +58,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="cart"
+        name="cart/index"
         options={{
           title: 'Cart',
           tabBarIcon: ({ color, focused }) => (
@@ -77,7 +77,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="account"
+        name="account/index"
         options={{
           title: 'Account',
           tabBarIcon: ({ color, focused }) => (

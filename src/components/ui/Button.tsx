@@ -8,6 +8,7 @@ import {
   Text,
   ActivityIndicator,
   StyleSheet,
+  View,
   ViewStyle,
   TextStyle,
 } from 'react-native';

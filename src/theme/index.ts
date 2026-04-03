@@ -2,6 +2,8 @@
 // Malipula Suits - Theme System
 // ============================================
 
+import { Platform } from 'react-native';
+
 export { Colors, getThemeColors, semanticColors } from './colors';
 export type { ColorScheme, ThemeColors } from './colors';
 export { useFonts, FontFamily, Fonts } from './fonts';
@@ -54,35 +56,39 @@ export const Typography = {
 
 // ---------- Shadows ----------
 
+const getNativeShadow = (width: number, height: number, opacity: number, radius: number, elevation: number) => ({
+  shadowColor: '#000',
+  shadowOffset: { width, height },
+  shadowOpacity: opacity,
+  shadowRadius: radius,
+  elevation,
+});
+
+const getWebShadow = (h: number, v: number, blur: number, spread: number, opacity: number) => ({
+  boxShadow: `${h}px ${v}px ${blur}px ${spread}px rgba(0, 0, 0, ${opacity})`,
+});
+
 export const Shadows = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  xl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
-    elevation: 12,
-  },
+  sm: Platform.select({
+    ios: getNativeShadow(0, 1, 0.05, 2, 2),
+    android: getNativeShadow(0, 1, 0.05, 2, 2),
+    web: getWebShadow(0, 1, 3, 0, 0.05),
+  }),
+  md: Platform.select({
+    ios: getNativeShadow(0, 2, 0.08, 8, 4),
+    android: getNativeShadow(0, 2, 0.08, 8, 4),
+    web: getWebShadow(0, 2, 8, 0, 0.08),
+  }),
+  lg: Platform.select({
+    ios: getNativeShadow(0, 4, 0.12, 16, 8),
+    android: getNativeShadow(0, 4, 0.12, 16, 8),
+    web: getWebShadow(0, 4, 16, 0, 0.12),
+  }),
+  xl: Platform.select({
+    ios: getNativeShadow(0, 8, 0.16, 24, 12),
+    android: getNativeShadow(0, 8, 0.16, 24, 12),
+    web: getWebShadow(0, 8, 24, 0, 0.16),
+  }),
 } as const;
 
 // ---------- Animation ----------

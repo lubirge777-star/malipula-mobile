@@ -6,14 +6,14 @@ import { useCallback, useEffect, useState } from 'react';
 import * as Font from 'expo-font';
 
 export const Fonts = {
-  interRegular: 'Inter-Regular',
-  interMedium: 'Inter-Medium',
-  interSemiBold: 'Inter-SemiBold',
-  interBold: 'Inter-Bold',
-  playfairRegular: 'PlayfairDisplay-Regular',
-  playfairMedium: 'PlayfairDisplay-Medium',
-  playfairSemiBold: 'PlayfairDisplay-SemiBold',
-  playfairBold: 'PlayfairDisplay-Bold',
+  interRegular: 'Inter_400Regular',
+  interMedium: 'Inter_500Medium',
+  interSemiBold: 'Inter_600SemiBold',
+  interBold: 'Inter_700Bold',
+  playfairRegular: 'PlayfairDisplay_400Regular',
+  playfairMedium: 'PlayfairDisplay_500Medium',
+  playfairSemiBold: 'PlayfairDisplay_600SemiBold',
+  playfairBold: 'PlayfairDisplay_700Bold',
 } as const;
 
 export const FontFamily = {
@@ -33,19 +33,19 @@ export function useFonts() {
   const loadFonts = useCallback(async () => {
     try {
       await Font.loadAsync({
-        [Fonts.interRegular]: require('@expo-google-fonts/inter/Inter_400Regular.ttf'),
-        [Fonts.interMedium]: require('@expo-google-fonts/inter/Inter_500Medium.ttf'),
-        [Fonts.interSemiBold]: require('@expo-google-fonts/inter/Inter_600SemiBold.ttf'),
-        [Fonts.interBold]: require('@expo-google-fonts/inter/Inter_700Bold.ttf'),
-        [Fonts.playfairRegular]: require('@expo-google-fonts/playfair-display/PlayfairDisplay_400Regular.ttf'),
-        [Fonts.playfairMedium]: require('@expo-google-fonts/playfair-display/PlayfairDisplay_500Medium.ttf'),
-        [Fonts.playfairSemiBold]: require('@expo-google-fonts/playfair-display/PlayfairDisplay_600SemiBold.ttf'),
-        [Fonts.playfairBold]: require('@expo-google-fonts/playfair-display/PlayfairDisplay_700Bold.ttf'),
+        Inter_400Regular: require('@expo-google-fonts/inter/Inter_400Regular.ttf'),
+        Inter_500Medium: require('@expo-google-fonts/inter/Inter_500Medium.ttf'),
+        Inter_600SemiBold: require('@expo-google-fonts/inter/Inter_600SemiBold.ttf'),
+        Inter_700Bold: require('@expo-google-fonts/inter/Inter_700Bold.ttf'),
+        PlayfairDisplay_400Regular: require('@expo-google-fonts/playfair-display/PlayfairDisplay_400Regular.ttf'),
+        PlayfairDisplay_500Medium: require('@expo-google-fonts/playfair-display/PlayfairDisplay_500Medium.ttf'),
+        PlayfairDisplay_600SemiBold: require('@expo-google-fonts/playfair-display/PlayfairDisplay_600SemiBold.ttf'),
+        PlayfairDisplay_700Bold: require('@expo-google-fonts/playfair-display/PlayfairDisplay_700Bold.ttf'),
       });
       setFontsLoaded(true);
     } catch (error) {
-      console.error('Failed to load fonts:', error);
-      // Fallback: still set to true to avoid infinite loading
+      console.warn('Failed to load fonts:', error);
+      // Fallback: still set to true to avoid infinite loading, but warn
       setFontsLoaded(true);
     }
   }, []);
