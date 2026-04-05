@@ -1,247 +1,164 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
-
-const deliveryMethods = [
-  { id: 'pickup', icon: 'storefront-outline' as const, title: 'Store Pickup', desc: 'Pick up from our Kijitonyama boutique', price: 0, time: '3-5 days' },
-  { id: 'dar', icon: 'bicycle-outline' as const, title: 'Dar es Salaam', desc: 'Same-day delivery within the city', price: 15000, time: 'Same day' },
-  { id: 'national', icon: 'airplane-outline' as const, title: 'Nationwide', desc: 'Delivery across Tanzania', price: 35000, time: '3-7 days' },
-];
-
-const paymentMethods = [
-  { id: 'mpesa', icon: 'phone-portrait-outline' as const, title: 'M-Pesa', desc: 'Mobile money payment', number: '255712345678' },
-  { id: 'tigo', icon: 'phone-portrait-outline' as const, title: 'Tigo Pesa', desc: 'Mobile money payment', number: '255712345678' },
-  { id: 'airtel', icon: 'phone-portrait-outline' as const, title: 'Airtel Money', desc: 'Mobile money payment', number: '255712345678' },
-  { id: 'card', icon: 'card-outline' as const, title: 'Credit/Debit Card', desc: 'Visa, Mastercard', number: '****4532' },
-];
-
-const orderItems = [
-  { name: 'The Executive 3-Piece', qty: 1, price: 1250000 },
-  { name: 'Ivory Formal Shirt', qty: 2, price: 120000 },
-  { name: 'Silk Pocket Square', qty: 1, price: 45000 },
-];
+import { useColorScheme } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import LottieView from 'lottie-react-native';
+import { Colors, getThemeColors } from '../../src/theme';
+import { Button, GlassView } from '../../src/components/ui';
 
 export default function CheckoutScreen() {
   const router = useRouter();
-  const [selectedDelivery, setSelectedDelivery] = useState('dar');
-  const [selectedPayment, setSelectedPayment] = useState('mpesa');
-  const [fullName, setFullName] = useState('Michael Kimaro');
-  const [phone, setPhone] = useState('+255 712 345 678');
-  const [street, setStreet] = useState('Plot 45, Ohio Street');
-  const [city, setCity] = useState('Dar es Salaam');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const discount = Math.round(subtotal * 0.1);
-  const delivery = deliveryMethods.find((d) => d.id === selectedDelivery)?.price || 0;
-  const total = subtotal - discount + delivery;
-
-  const formatPrice = (price: number) => `TZS ${price.toLocaleString()}`;
-
-  const handlePlaceOrder = () => {
-    setIsProcessing(true);
+  const handlePayment = async () => {
+    // Simulate transaction delay
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setTimeout(() => {
-      setIsProcessing(false);
-      router.push('/account/orders');
-    }, 2000);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setIsSuccess(true);
+    }, 1500);
   };
 
-  return (
-    <View className="flex-1 bg-ivory">
-      {/* Header */}
-      <View className="px-4 pt-4 pb-3 flex-row items-center gap-3">
-        <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
-        </TouchableOpacity>
-        <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">Checkout</Text>
+  if (isSuccess) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.background }]} className="items-center justify-center p-8">
+        <View className="w-48 h-48 items-center justify-center mb-8">
+            <LottieView
+              source={{ uri: 'https://lottie.host/80e922f2-1b1e-4f1e-9e8c-8f4f3e4e9b8f/success-elite.json' }}
+              autoPlay
+              loop={false}
+              style={{ width: 200, height: 200 }}
+            />
         </View>
+        <Text className="text-gold font-bold text-[10px] uppercase tracking-widest mb-2">Order Confirmed</Text>
+        <Text className="text-navy dark:text-ivory font-display text-3xl text-center">Your Masterpiece is in the Works</Text>
+        <Text className="text-app-text-secondary text-center mt-4 mb-12 px-6 leading-5">
+            Thank you for choosing Malipula. Our master tailors have been notified of your sartorial DNA.
+        </Text>
+        <Button 
+            title="Track My Order" 
+            variant="luxury" 
+            onPress={() => router.push('/')} 
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Header */}
+      <View className="pt-16 px-6 pb-6 flex-row items-center justify-between">
+        <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
+            <Ionicons name="close" size={24} color={theme.text} />
+        </TouchableOpacity>
+        <Text className="font-heading text-xl text-navy dark:text-ivory">Secure Checkout</Text>
+        <View className="w-10" />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-4 pb-36">
-        {/* Delivery Address */}
-        <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="font-semibold text-navy text-base">Delivery Address</Text>
-            <TouchableOpacity>
-              <Text className="text-gold text-xs font-medium">Change</Text>
-            </TouchableOpacity>
-          </View>
-          <View className="space-y-2.5">
-            <View>
-              <Text className="text-xs text-charcoal/50 mb-1">Full Name</Text>
-              <TextInput
-                className="bg-ivory rounded-xl px-3.5 py-2.5 text-sm text-navy"
-                value={fullName}
-                onChangeText={setFullName}
-              />
-            </View>
-            <View>
-              <Text className="text-xs text-charcoal/50 mb-1">Phone</Text>
-              <TextInput
-                className="bg-ivory rounded-xl px-3.5 py-2.5 text-sm text-navy"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-              />
-            </View>
-            <View>
-              <Text className="text-xs text-charcoal/50 mb-1">Address</Text>
-              <TextInput
-                className="bg-ivory rounded-xl px-3.5 py-2.5 text-sm text-navy"
-                value={street}
-                onChangeText={setStreet}
-              />
-            </View>
-            <View>
-              <Text className="text-xs text-charcoal/50 mb-1">City</Text>
-              <TextInput
-                className="bg-ivory rounded-xl px-3.5 py-2.5 text-sm text-navy"
-                value={city}
-                onChangeText={setCity}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Delivery Method */}
-        <View className="mb-4">
-          <Text className="font-semibold text-navy text-base mb-2.5">Delivery Method</Text>
-          <View className="gap-2">
-            {deliveryMethods.map((method) => (
-              <TouchableOpacity
-                key={method.id}
-                className={`bg-white rounded-2xl p-3.5 shadow-sm flex-row items-center gap-3 border-2 ${
-                  selectedDelivery === method.id ? 'border-gold' : 'border-transparent'
-                }`}
-                onPress={() => setSelectedDelivery(method.id)}
-                activeOpacity={0.85}
-              >
-                <View className={`w-11 h-11 rounded-xl items-center justify-center ${
-                  selectedDelivery === method.id ? 'bg-gold/20' : 'bg-ivory'
-                }`}>
-                  <Ionicons name={method.icon} size={20} color={selectedDelivery === method.id ? GOLD : NAVY} />
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="font-medium text-navy text-sm">{method.title}</Text>
-                    <Text className="text-gold font-semibold text-sm">
-                      {method.price === 0 ? 'Free' : formatPrice(method.price)}
-                    </Text>
-                  </View>
-                  <Text className="text-charcoal/60 text-xs mt-0.5">{method.desc}</Text>
-                  <View className="flex-row items-center gap-1 mt-1">
-                    <Ionicons name="time-outline" size={11} color="#6B6361" />
-                    <Text className="text-charcoal/50 text-[11px]">{method.time}</Text>
-                  </View>
-                </View>
-                {selectedDelivery === method.id && (
-                  <View className="w-5 h-5 bg-gold rounded-full items-center justify-center">
-                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Payment Method */}
-        <View className="mb-4">
-          <Text className="font-semibold text-navy text-base mb-2.5">Payment Method</Text>
-          <View className="gap-2">
-            {paymentMethods.map((method) => (
-              <TouchableOpacity
-                key={method.id}
-                className={`bg-white rounded-2xl p-3.5 shadow-sm flex-row items-center gap-3 border-2 ${
-                  selectedPayment === method.id ? 'border-gold' : 'border-transparent'
-                }`}
-                onPress={() => setSelectedPayment(method.id)}
-                activeOpacity={0.85}
-              >
-                <View className={`w-11 h-11 rounded-xl items-center justify-center ${
-                  selectedPayment === method.id ? 'bg-gold/20' : 'bg-ivory'
-                }`}>
-                  <Ionicons name={method.icon} size={20} color={selectedPayment === method.id ? GOLD : NAVY} />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-medium text-navy text-sm">{method.title}</Text>
-                  <Text className="text-charcoal/60 text-xs">{method.desc}</Text>
-                </View>
-                <Text className="text-charcoal/40 text-xs">{method.number}</Text>
-                {selectedPayment === method.id && (
-                  <View className="w-5 h-5 bg-gold rounded-full items-center justify-center">
-                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
+      <ScrollView className="flex-1 px-6">
         {/* Order Summary */}
-        <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
-          <Text className="font-semibold text-navy text-base mb-3">Order Summary</Text>
-          {orderItems.map((item, index) => (
-            <View key={index} className="flex-row justify-between py-1.5">
-              <Text className="text-charcoal/70 text-sm flex-1" numberOfLines={1}>{item.name} x{item.qty}</Text>
-              <Text className="text-navy text-sm font-medium ml-4">{formatPrice(item.price * item.qty)}</Text>
+        <View className="mb-8">
+            <Text className="text-gold font-bold text-[10px] uppercase tracking-widest mb-4">Summary</Text>
+            <GlassView intensity={5} className="p-5 rounded-[32px] border border-gold/10 flex-row items-center gap-4">
+                <View className="w-20 h-20 bg-navy dark:bg-charcoal rounded-[20px] items-center justify-center">
+                    <Ionicons name="shirt" size={32} color={Colors.gold} />
+                </View>
+                <View className="flex-1">
+                    <Text className="text-navy dark:text-ivory font-heading text-lg">Bespoke Navy Wool Suit</Text>
+                    <Text className="text-app-text-secondary text-xs mt-1">Slim Fit • Heritage Collection</Text>
+                    <View className="flex-row items-center gap-2 mt-2">
+                        <View className="bg-gold/10 px-2 py-1 rounded">
+                            <Text className="text-gold font-bold text-[8px] uppercase">AI Measured</Text>
+                        </View>
+                        <Text className="text-gold font-bold text-sm">$1,250</Text>
+                    </View>
+                </View>
+            </GlassView>
+        </View>
+
+        {/* Shipping */}
+        <View className="mb-8">
+            <View className="flex-row items-center justify-between mb-4">
+                <Text className="text-gold font-bold text-[10px] uppercase tracking-widest">Shipping Address</Text>
+                <TouchableOpacity>
+                    <Text className="text-gold font-bold text-[10px] uppercase">Edit</Text>
+                </TouchableOpacity>
             </View>
-          ))}
-          <View className="h-px bg-gray-100 my-2" />
-          <View className="flex-row justify-between py-1">
-            <Text className="text-charcoal/60 text-sm">Subtotal</Text>
-            <Text className="text-navy text-sm">{formatPrice(subtotal)}</Text>
-          </View>
-          <View className="flex-row justify-between py-1">
-            <Text className="text-charcoal/60 text-sm">Discount (10%)</Text>
-            <Text className="text-green-600 text-sm">-{formatPrice(discount)}</Text>
-          </View>
-          <View className="flex-row justify-between py-1">
-            <Text className="text-charcoal/60 text-sm">Delivery</Text>
-            <Text className="text-navy text-sm">{delivery === 0 ? 'Free' : formatPrice(delivery)}</Text>
-          </View>
-          <View className="h-px bg-gray-100 my-2" />
-          <View className="flex-row justify-between">
-            <Text className="font-bold text-navy">Total</Text>
-            <Text className="font-bold text-gold text-lg">{formatPrice(total)}</Text>
-          </View>
+            <View className="p-5 rounded-[28px] border border-gold/10 bg-app-surface">
+                <Text className="text-navy dark:text-ivory font-medium">Bakhresa Towers, Floor 12</Text>
+                <Text className="text-app-text-secondary text-xs mt-1">Dar es Salaam, Tanzania</Text>
+                <Text className="text-app-text-secondary text-xs mt-1">+255 765 432 109</Text>
+            </View>
+        </View>
+
+        {/* Payment */}
+        <View className="mb-8">
+            <Text className="text-gold font-bold text-[10px] uppercase tracking-widest mb-4">Payment Method</Text>
+            <View className="flex-row gap-3">
+                {['card', 'apple-pay', 'm-pesa'].map((method) => (
+                    <TouchableOpacity 
+                        key={method}
+                        onPress={() => setPaymentMethod(method)}
+                        className={`flex-1 p-4 rounded-[24px] border items-center justify-center ${paymentMethod === method ? 'bg-gold/5 border-gold shadow-sm' : 'bg-app-surface border-gold/10'}`}
+                    >
+                        <Ionicons 
+                            name={method === 'card' ? 'card-outline' : method === 'apple-pay' ? 'logo-apple' : 'phone-portrait-outline'} 
+                            size={24} 
+                            color={paymentMethod === method ? Colors.gold : theme.text} 
+                        />
+                        <Text className={`text-[10px] font-bold uppercase tracking-widest mt-2 ${paymentMethod === method ? 'text-gold' : 'text-app-text-secondary'}`}>
+                            {method.replace('-', ' ')}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+        </View>
+
+        {/* Pricing Detail */}
+        <View className="mt-4 gap-3 bg-app-surface p-6 rounded-[32px] border border-gold/10">
+            <View className="flex-row justify-between">
+                <Text className="text-app-text-secondary text-xs">Subtotal</Text>
+                <Text className="text-navy dark:text-ivory font-medium">$1,250.00</Text>
+            </View>
+            <View className="flex-row justify-between">
+                <Text className="text-app-text-secondary text-xs">Craftsmanship Fee</Text>
+                <Text className="text-navy dark:text-ivory font-medium">$150.00</Text>
+            </View>
+            <View className="flex-row justify-between">
+                <Text className="text-app-text-secondary text-xs">Priority Shipping</Text>
+                <Text className="text-navy dark:text-ivory font-medium">Free</Text>
+            </View>
+            <View className="h-[1px] bg-gold/10 my-2" />
+            <View className="flex-row justify-between items-baseline">
+                <Text className="text-navy dark:text-ivory font-bold">Total</Text>
+                <Text className="text-gold font-display text-2xl">$1,400.00</Text>
+            </View>
         </View>
       </ScrollView>
 
-      {/* Place Order Button */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pt-3 pb-8 shadow-lg" style={styles.stickyBar}>
-        <TouchableOpacity
-          className={`py-3.5 rounded-xl items-center ${isProcessing ? 'bg-gray-300' : 'bg-gold'}`}
-          onPress={handlePlaceOrder}
-          disabled={isProcessing}
-          activeOpacity={0.85}
-        >
-          <Text className={`font-bold text-sm ${isProcessing ? 'text-charcoal/40' : 'text-navy'}`}>
-            {isProcessing ? 'Processing...' : `Place Order — ${formatPrice(total)}`}
-          </Text>
-        </TouchableOpacity>
+      {/* Place Order */}
+      <View className="p-8 border-t border-gold/10 bg-app-background">
+        <Button 
+            title="Complete Payment" 
+            variant="luxury" 
+            onPress={handlePayment} 
+        />
+        <Text className="text-app-text-secondary text-center text-[10px] mt-4">
+            Security guaranteed by Malipura Vault SSL. Payments processed via Selcom & Stripe.
+        </Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  stickyBar: {
-    elevation: 10,
-    shadowColor: 'rgba(27, 42, 74, 0.1)',
-    shadowOffset: { width: 0, height: -4 },
-    shadowRadius: 16,
-    shadowOpacity: 1,
+  container: {
+    flex: 1,
   },
 });

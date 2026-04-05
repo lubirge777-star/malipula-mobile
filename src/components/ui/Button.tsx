@@ -13,9 +13,17 @@ import {
   TextStyle,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, getThemeColors, BorderRadius, Spacing, Typography } from '../../theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'luxury';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
@@ -31,6 +39,8 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export function Button({
   title,
@@ -49,6 +59,26 @@ export function Button({
   const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
 
   const isDisabled = disabled || loading;
+  const shimmerProgress = useSharedValue(0);
+
+  React.useEffect(() => {
+    if (variant === 'luxury' && !isDisabled) {
+      shimmerProgress.value = withRepeat(
+        withTiming(1, { duration: 2500 }),
+        -1,
+        false
+      );
+    } else {
+      shimmerProgress.value = 0;
+    }
+  }, [variant, isDisabled]);
+
+  const shimmerStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(shimmerProgress.value, [0, 1], [-150, 150]);
+    return {
+      transform: [{ translateX }],
+    };
+  });
 
   const getButtonStyle = (): ViewStyle => {
     const base: ViewStyle = {
@@ -57,6 +87,7 @@ export function Button({
       alignItems: 'center',
       justifyContent: 'center',
       opacity: isDisabled ? 0.5 : 1,
+      overflow: 'hidden',
     };
 
     const sizeStyles: Record<ButtonSize, ViewStyle> = {
@@ -85,6 +116,11 @@ export function Button({
         borderWidth: 1.5,
         borderColor: colorScheme === 'dark' ? Colors.goldLight : Colors.goldDark,
       },
+      luxury: {
+        backgroundColor: Colors.charcoal,
+        borderWidth: 1,
+        borderColor: Colors.gold,
+      },
     };
 
     return {
@@ -99,7 +135,7 @@ export function Button({
   const getTextStyle = (): TextStyle => {
     const base: TextStyle = {
       fontFamily: 'Inter-SemiBold',
-      letterSpacing: 0.3,
+      letterSpacing: 0.5,
     };
 
     const sizeStyles: Record<ButtonSize, TextStyle> = {
@@ -113,6 +149,7 @@ export function Button({
       secondary: { color: Colors.ivory },
       ghost: { color: Colors.gold },
       outline: { color: colorScheme === 'dark' ? Colors.goldLight : Colors.goldDark },
+      luxury: { color: Colors.gold },
     };
 
     return {
@@ -130,10 +167,18 @@ export function Button({
       disabled={isDisabled}
       activeOpacity={0.7}
     >
+      {variant === 'luxury' && !isDisabled && (
+        <AnimatedLinearGradient
+          colors={['transparent', 'rgba(201, 169, 98, 0.2)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[StyleSheet.absoluteFill, shimmerStyle]}
+        />
+      )}
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'secondary' ? Colors.ivory : Colors.charcoal}
+          color={variant === 'secondary' || variant === 'luxury' ? Colors.ivory : Colors.charcoal}
         />
       ) : (
         <>

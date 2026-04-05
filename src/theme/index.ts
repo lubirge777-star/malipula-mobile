@@ -64,31 +64,19 @@ const getNativeShadow = (width: number, height: number, opacity: number, radius:
   elevation,
 });
 
-const getWebShadow = (h: number, v: number, blur: number, spread: number, opacity: number) => ({
-  boxShadow: `${h}px ${v}px ${blur}px ${spread}px rgba(0, 0, 0, ${opacity})`,
-});
-
 export const Shadows = {
-  sm: Platform.select({
-    ios: getNativeShadow(0, 1, 0.05, 2, 2),
-    android: getNativeShadow(0, 1, 0.05, 2, 2),
-    web: getWebShadow(0, 1, 3, 0, 0.05),
-  }),
-  md: Platform.select({
-    ios: getNativeShadow(0, 2, 0.08, 8, 4),
-    android: getNativeShadow(0, 2, 0.08, 8, 4),
-    web: getWebShadow(0, 2, 8, 0, 0.08),
-  }),
-  lg: Platform.select({
-    ios: getNativeShadow(0, 4, 0.12, 16, 8),
-    android: getNativeShadow(0, 4, 0.12, 16, 8),
-    web: getWebShadow(0, 4, 16, 0, 0.12),
-  }),
-  xl: Platform.select({
-    ios: getNativeShadow(0, 8, 0.16, 24, 12),
-    android: getNativeShadow(0, 8, 0.16, 24, 12),
-    web: getWebShadow(0, 8, 24, 0, 0.16),
-  }),
+  sm: {
+    ...getNativeShadow(0, 1, 0.05, 2, 2),
+  },
+  md: {
+    ...getNativeShadow(0, 2, 0.08, 8, 4),
+  },
+  lg: {
+    ...getNativeShadow(0, 4, 0.12, 16, 8),
+  },
+  xl: {
+    ...getNativeShadow(0, 8, 0.16, 24, 12),
+  },
 } as const;
 
 // ---------- Animation ----------

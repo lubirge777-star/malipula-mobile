@@ -13,20 +13,20 @@ module.exports = {
         gold: {
           DEFAULT: '#C9A962',
           light: '#E8D5A3',
-          dark: '#A68B4E',
+          dark: '#A0874E',
           50: '#FDF8EF',
           100: '#FAF0DA',
           200: '#F5E2B5',
           300: '#EED48E',
           400: '#E0BC60',
           500: '#C9A962',
-          600: '#A68B4E',
+          600: '#A0874E',
           700: '#8A7042',
           800: '#6E5936',
           900: '#544428',
         },
         navy: {
-          DEFAULT: '#1B2A4A',
+          DEFAULT: '#1A2B44',
           light: '#2A3F6B',
           dark: '#111C33',
           50: '#E8EAF0',
@@ -35,13 +35,13 @@ module.exports = {
           300: '#718DAA',
           400: '#476D90',
           500: '#2A3F6B',
-          600: '#1B2A4A',
+          600: '#1A2B44',
           700: '#15213A',
           800: '#0F1729',
           900: '#0A0D19',
         },
-        ivory: '#FAFAF5',
-        charcoal: '#1A1714',
+        ivory: '#FCFAF2',
+        charcoal: '#2D2D2D',
 
         // Semantic
         success: {
@@ -73,8 +73,10 @@ module.exports = {
         'app-border': 'var(--color-border)',
       },
       fontFamily: {
-        sans: ['Inter', 'System', 'sans-serif'],
-        display: ['Playfair Display', 'serif'],
+        sans: ['Poppins_400Regular', 'System', 'sans-serif'],
+        heading: ['Poppins_600SemiBold', 'System', 'sans-serif'],
+        display: ['PlayfairDisplay_600SemiBold', 'serif'],
+        script: ['DancingScript_400Regular', 'cursive'],
       },
       fontSize: {
         display: ['32px', { lineHeight: '40px', letterSpacing: '-0.5px' }],

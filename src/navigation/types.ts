@@ -1,6 +1,6 @@
 // Navigation type definitions for Malipula Suits app
 
-export type TabName = 'home' | 'shop' | 'bookings' | 'cart' | 'account';
+export type TabName = 'home' | 'shop' | 'builder' | 'chat' | 'account';
 
 export interface TabRoute {
   name: TabName;
@@ -8,6 +8,7 @@ export interface TabRoute {
   icon: string;
   activeIcon: string;
   route: string;
+  isFAB?: boolean;
 }
 
 export const TAB_ROUTES: TabRoute[] = [
@@ -16,35 +17,35 @@ export const TAB_ROUTES: TabRoute[] = [
     label: 'Home',
     icon: 'home-outline',
     activeIcon: 'home',
-    route: '/(tabs)',
+    route: '/',
   },
   {
     name: 'shop',
-    label: 'Shop',
-    icon: 'bag-outline',
-    activeIcon: 'bag',
-    route: '/(tabs)/shop',
+    label: 'Fabrics',
+    icon: 'journal-outline',
+    activeIcon: 'journal',
+    route: '/shop',
   },
   {
-    name: 'bookings',
-    label: 'Bookings',
-    icon: 'calendar-outline',
-    activeIcon: 'calendar',
-    route: '/(tabs)/bookings',
+    name: 'builder',
+    label: 'Build',
+    icon: 'cube-outline',
+    activeIcon: 'cube',
+    route: '/builder',
   },
   {
-    name: 'cart',
-    label: 'Cart',
-    icon: 'cart-outline',
-    activeIcon: 'cart',
-    route: '/(tabs)/cart',
+    name: 'chat',
+    label: 'Chat',
+    icon: 'chatbubbles-outline',
+    activeIcon: 'chatbubbles',
+    route: '/chat',
   },
   {
     name: 'account',
     label: 'Account',
     icon: 'person-outline',
     activeIcon: 'person',
-    route: '/(tabs)/account',
+    route: '/account',
   },
 ];
 

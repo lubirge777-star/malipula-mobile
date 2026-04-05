@@ -6,11 +6,11 @@ export const Colors = {
   // Brand
   gold: '#C9A962',
   goldLight: '#E8D5A3',
-  goldDark: '#A68B4E',
-  navy: '#1B2A4A',
+  goldDark: '#A0874E',
+  navy: '#1A2B44',
   navyLight: '#2A3F6B',
-  ivory: '#FAFAF5',
-  charcoal: '#1A1714',
+  ivory: '#FCFAF2',
+  charcoal: '#2D2D2D',
 
   // Semantic
   success: '#2D7A4F',

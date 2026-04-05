@@ -10,6 +10,11 @@ export const Fonts = {
   interMedium: 'Inter_500Medium',
   interSemiBold: 'Inter_600SemiBold',
   interBold: 'Inter_700Bold',
+  poppinsRegular: 'Poppins_400Regular',
+  poppinsMedium: 'Poppins_500Medium',
+  poppinsSemiBold: 'Poppins_600SemiBold',
+  poppinsBold: 'Poppins_700Bold',
+  dancingScript: 'DancingScript_400Regular',
   playfairRegular: 'PlayfairDisplay_400Regular',
   playfairMedium: 'PlayfairDisplay_500Medium',
   playfairSemiBold: 'PlayfairDisplay_600SemiBold',
@@ -17,14 +22,15 @@ export const Fonts = {
 } as const;
 
 export const FontFamily = {
-  regular: Fonts.interRegular,
-  medium: Fonts.interMedium,
-  semiBold: Fonts.interSemiBold,
-  bold: Fonts.interBold,
+  regular: Fonts.poppinsRegular,
+  medium: Fonts.poppinsMedium,
+  semiBold: Fonts.poppinsSemiBold,
+  bold: Fonts.poppinsBold,
   display: Fonts.playfairRegular,
   displayMedium: Fonts.playfairMedium,
   displaySemiBold: Fonts.playfairSemiBold,
   displayBold: Fonts.playfairBold,
+  script: Fonts.dancingScript,
 } as const;
 
 export function useFonts() {
@@ -37,6 +43,11 @@ export function useFonts() {
         Inter_500Medium: require('@expo-google-fonts/inter/Inter_500Medium.ttf'),
         Inter_600SemiBold: require('@expo-google-fonts/inter/Inter_600SemiBold.ttf'),
         Inter_700Bold: require('@expo-google-fonts/inter/Inter_700Bold.ttf'),
+        Poppins_400Regular: require('@expo-google-fonts/poppins/Poppins_400Regular.ttf'),
+        Poppins_500Medium: require('@expo-google-fonts/poppins/Poppins_500Medium.ttf'),
+        Poppins_600SemiBold: require('@expo-google-fonts/poppins/Poppins_600SemiBold.ttf'),
+        Poppins_700Bold: require('@expo-google-fonts/poppins/Poppins_700Bold.ttf'),
+        DancingScript_400Regular: require('@expo-google-fonts/dancing-script/DancingScript_400Regular.ttf'),
         PlayfairDisplay_400Regular: require('@expo-google-fonts/playfair-display/PlayfairDisplay_400Regular.ttf'),
         PlayfairDisplay_500Medium: require('@expo-google-fonts/playfair-display/PlayfairDisplay_500Medium.ttf'),
         PlayfairDisplay_600SemiBold: require('@expo-google-fonts/playfair-display/PlayfairDisplay_600SemiBold.ttf'),

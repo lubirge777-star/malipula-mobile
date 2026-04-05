@@ -6,40 +6,71 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
-  Image,
   StyleSheet,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { Colors, getThemeColors, Spacing, Typography, BorderRadius } from '../../../src/theme';
+import { ProductCard, Button, GlassView } from '../../../src/components/ui';
 
 const categoryFilters = [
   { id: 'all', label: 'All' },
   { id: 'suits', label: 'Suits' },
   { id: 'shirts', label: 'Shirts' },
-  { id: 'trousers', label: 'Trousers' },
-  { id: 'blazers', label: 'Blazers' },
   { id: 'kaftans', label: 'Kaftans' },
   { id: 'accessories', label: 'Accessories' },
 ];
 
-const sortOptions = ['Featured', 'Price: Low', 'Price: High', 'Newest', 'Rating'];
+const sortOptions = ['Featured', 'Price: Low', 'Price: High', 'Newest'];
 
 const products = [
-  { id: '1', name: 'The Executive 3-Piece', price: 1250000, originalPrice: 1500000, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop', category: 'suits', rating: 4.8, reviews: 124, isBestseller: true },
-  { id: '2', name: 'Navy Slim Fit Suit', price: 890000, image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300&h=400&fit=crop', category: 'suits', rating: 4.6, reviews: 89 },
-  { id: '3', name: 'Ivory Formal Shirt', price: 120000, image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=300&h=400&fit=crop', category: 'shirts', rating: 4.5, reviews: 56 },
-  { id: '4', name: 'The Diplomat Blazer', price: 650000, originalPrice: 780000, image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=300&h=400&fit=crop', category: 'blazers', rating: 4.9, reviews: 201, isBestseller: true },
-  { id: '5', name: 'Charcoal Wool Trousers', price: 280000, image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=300&h=400&fit=crop', category: 'trousers', rating: 4.4, reviews: 67 },
-  { id: '6', name: 'Royal Kaftan', price: 450000, image: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?w=300&h=400&fit=crop', category: 'kaftans', rating: 4.7, reviews: 93 },
-  { id: '7', name: 'Silk Pocket Square', price: 45000, image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736c10?w=300&h=400&fit=crop', category: 'accessories', rating: 4.3, reviews: 34 },
-  { id: '8', name: 'Italian Linen Shirt', price: 185000, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&h=400&fit=crop', category: 'shirts', rating: 4.6, reviews: 72 },
+  { 
+    id: '1', 
+    name: 'The Executive 3-Piece', 
+    basePrice: 12500, 
+    salePrice: 10500,
+    rating: 4.8,
+    reviewCount: 124,
+    isNew: true,
+    category: { name: 'Bespoke Suits' },
+    images: [{ url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop', isPrimary: true }]
+  },
+  { 
+    id: '2', 
+    name: 'Navy Slim Fit Suit', 
+    basePrice: 8900, 
+    rating: 4.6,
+    reviewCount: 89,
+    category: { name: 'Suits' },
+    images: [{ url: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=600&fit=crop', isPrimary: true }]
+  },
+  { 
+    id: '3', 
+    name: 'Ivory Formal Kaftan', 
+    basePrice: 4500, 
+    rating: 4.9,
+    reviewCount: 56,
+    isNew: true,
+    category: { name: 'Traditional' },
+    images: [{ url: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&h=600&fit=crop', isPrimary: true }]
+  },
+  { 
+    id: '4', 
+    name: 'Silk Pocket Square', 
+    basePrice: 450, 
+    rating: 4.3,
+    reviewCount: 34,
+    category: { name: 'Accessories' },
+    images: [{ url: 'https://images.unsplash.com/photo-1598033129183-c4f50c736c10?w=400&h=600&fit=crop', isPrimary: true }]
+  },
 ];
 
 export default function ShopScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [sortIndex, setSortIndex] = useState(0);
@@ -48,7 +79,7 @@ export default function ShopScreen() {
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+    const matchesCategory = activeCategory === 'all' || p.category.name.toLowerCase().includes(activeCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -57,52 +88,52 @@ export default function ShopScreen() {
     setTimeout(() => setRefreshing(false), 1500);
   }, []);
 
-  const formatPrice = (price: number) => `TZS ${price.toLocaleString()}`;
-
   return (
-    <View className="flex-1 bg-ivory">
-      {/* Search Bar */}
-      <View className="px-4 pt-3 pb-2 bg-ivory">
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Search Header */}
+      <View style={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 8 }}>
         <View className="flex-row items-center gap-3">
-          <View className="flex-1 flex-row items-center bg-white rounded-xl px-3.5 py-2.5 shadow-sm">
-            <Ionicons name="search" size={18} color="#6B6361" />
+          <View className="flex-1 flex-row items-center bg-app-surface rounded-[20px] px-4 py-3 shadow-sm border border-gold/5">
+            <Ionicons name="search" size={18} color={theme.textSecondary} />
             <TextInput
-              className="flex-1 ml-2 text-sm text-navy font-body"
-              placeholder="Search suits, shirts..."
-              placeholderTextColor="#6B636180"
+              className="flex-1 ml-2 text-sm text-app-text font-sans"
+              placeholder="Search collections..."
+              placeholderTextColor={theme.textSecondary + '80'}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={18} color="#6B6361" />
+                <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
           <TouchableOpacity
-            className="w-10 h-10 bg-navy rounded-xl items-center justify-center"
+            className="w-12 h-12 bg-navy rounded-[20px] items-center justify-center border border-gold/20 shadow-lg"
             onPress={() => setShowFilter(!showFilter)}
           >
-            <Ionicons name="options-outline" size={20} color="#FFFFFF" />
+            <Ionicons name="options-outline" size={20} color={Colors.gold} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Category Filter Chips */}
-      <View className="px-4 py-2">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2">
+      {/* Category Tabs */}
+      <View style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
           {categoryFilters.map((cat) => (
             <TouchableOpacity
               key={cat.id}
-              className={`px-4 py-1.5 rounded-full ${
-                activeCategory === cat.id ? 'bg-gold' : 'bg-white'
+              className={`px-6 py-2.5 rounded-full border ${
+                activeCategory === cat.id 
+                  ? 'bg-gold border-gold' 
+                  : 'bg-app-surface border-app-border'
               }`}
               onPress={() => setActiveCategory(cat.id)}
               activeOpacity={0.7}
             >
               <Text
-                className={`text-xs font-semibold ${
-                  activeCategory === cat.id ? 'text-navy' : 'text-charcoal'
+                className={`text-xs font-heading ${
+                  activeCategory === cat.id ? 'text-charcoal' : 'text-app-text'
                 }`}
               >
                 {cat.label}
@@ -112,98 +143,121 @@ export default function ShopScreen() {
         </ScrollView>
       </View>
 
-      {/* Sort Bar */}
-      <View className="flex-row items-center justify-between px-4 py-2">
-        <Text className="text-charcoal text-sm">{filteredProducts.length} products</Text>
+      {/* Sort & Results Summary */}
+      <View className="flex-row items-center justify-between px-6 py-2">
+        <Text className="text-app-text-secondary text-[12px] font-sans uppercase tracking-wider">
+          {filteredProducts.length} Items Found
+        </Text>
         <TouchableOpacity className="flex-row items-center gap-1">
-          <Ionicons name="swap-vertical" size={16} color={GOLD} />
-          <Text className="text-gold text-sm font-medium">{sortOptions[sortIndex]}</Text>
+          <Ionicons name="swap-vertical" size={14} color={Colors.gold} />
+          <Text className="text-gold text-xs font-semibold">{sortOptions[sortIndex]}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Products Grid */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={GOLD} />}
-        className="px-4"
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor={Colors.gold} 
+            colors={[Colors.gold]}
+          />
+        }
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
       >
-        <View className="flex-row flex-wrap gap-3 pb-24">
+        <View className="flex-row flex-wrap justify-between gap-y-6">
           {filteredProducts.map((product) => (
-            <TouchableOpacity
+            <ProductCard
               key={product.id}
-              className="w-[48%] bg-white rounded-2xl overflow-hidden shadow-sm"
+              product={product as any}
               onPress={() => router.push(`/shop/${product.id}`)}
-              activeOpacity={0.85}
-            >
-              <View className="relative h-52 bg-gray-50">
-                <Image source={{ uri: product.image }} className="w-full h-full" resizeMode="cover" />
-                {product.isBestseller && (
-                  <View className="absolute top-2 left-2 bg-navy px-2.5 py-0.5 rounded-full">
-                    <Text className="text-gold text-[10px] font-bold tracking-wide uppercase">Bestseller</Text>
-                  </View>
-                )}
-                {product.originalPrice && (
-                  <View className="absolute top-2 right-2 bg-red-500 px-2 py-0.5 rounded-full">
-                    <Text className="text-white text-[10px] font-bold">SALE</Text>
-                  </View>
-                )}
-                <TouchableOpacity className="absolute bottom-2 right-2 w-8 h-8 bg-white/90 rounded-full items-center justify-center shadow-sm">
-                  <Ionicons name="heart-outline" size={16} color={NAVY} />
-                </TouchableOpacity>
-              </View>
-              <View className="p-3">
-                <Text className="font-medium text-navy text-sm mb-1" numberOfLines={1}>{product.name}</Text>
-                <View className="flex-row items-center gap-1 mb-1.5">
-                  <Ionicons name="star" size={12} color={GOLD} />
-                  <Text className="text-xs text-charcoal">{product.rating} ({product.reviews})</Text>
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-gold font-semibold text-sm">{formatPrice(product.price)}</Text>
-                  {product.originalPrice && (
-                    <Text className="text-charcoal/50 text-xs line-through">{formatPrice(product.originalPrice)}</Text>
-                  )}
-                </View>
-              </View>
-            </TouchableOpacity>
+              style={{ width: '47%' }}
+            />
           ))}
         </View>
       </ScrollView>
 
-      {/* Filter Bottom Sheet (simplified) */}
+      {/* Filter Bottom Sheet */}
       {showFilter && (
-        <View className="absolute inset-0 bg-black/40" style={StyleSheet.absoluteFill}>
-          <View className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8">
-            <View className="w-10 h-1 bg-gray-200 rounded-full self-center mb-5" />
-            <Text className="font-heading text-lg text-navy mb-4">Filters</Text>
-            <View className="mb-4">
-              <Text className="text-sm font-semibold text-navy mb-2">Price Range</Text>
-              <View className="flex-row gap-2">
-                {['All', '< 200K', '200K-500K', '500K-1M', '> 1M'].map((range) => (
-                  <TouchableOpacity key={range} className="px-3 py-1.5 bg-ivory rounded-full">
-                    <Text className="text-xs text-charcoal">{range}</Text>
+        <View style={StyleSheet.absoluteFill}>
+          <TouchableOpacity 
+            style={styles.overlay} 
+            activeOpacity={1} 
+            onPress={() => setShowFilter(false)} 
+          />
+          <View style={[styles.bottomSheet, { backgroundColor: theme.background }]}>
+            <View className="w-12 h-1.5 bg-gold/20 rounded-full self-center mb-6" />
+            <Text className="font-display text-2xl text-app-text mb-6">Filter Collections</Text>
+            
+            <View className="mb-6">
+              <Text className="text-xs font-heading text-gold uppercase tracking-widest mb-3">Price Range</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {['All', '< 2K', '2K-5K', '5K-10K', '> 10K'].map((range) => (
+                  <TouchableOpacity 
+                    key={range} 
+                    className="px-4 py-2 bg-app-surface rounded-xl border border-app-border"
+                  >
+                    <Text className="text-xs text-app-text font-sans">{range}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
-            <View className="mb-4">
-              <Text className="text-sm font-semibold text-navy mb-2">Size</Text>
-              <View className="flex-row gap-2">
-                {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Custom'].map((size) => (
-                  <TouchableOpacity key={size} className="w-10 h-10 bg-ivory rounded-lg items-center justify-center">
-                    <Text className="text-xs text-charcoal font-medium">{size}</Text>
+
+            <View className="mb-8">
+              <Text className="text-xs font-heading text-gold uppercase tracking-widest mb-3">Sort By</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {sortOptions.map((opt, idx) => (
+                  <TouchableOpacity 
+                    key={opt}
+                    onPress={() => setSortIndex(idx)}
+                    className={`px-4 py-2 rounded-xl border ${
+                      sortIndex === idx ? 'bg-gold/10 border-gold' : 'bg-app-surface border-app-border'
+                    }`}
+                  >
+                    <Text className={`text-xs ${sortIndex === idx ? 'text-gold font-semibold' : 'text-app-text'}`}>
+                      {opt}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
-            <TouchableOpacity
-              className="bg-gold rounded-xl py-3 items-center mt-2"
+
+            <Button
+              title="Apply Selection"
               onPress={() => setShowFilter(false)}
-            >
-              <Text className="text-navy font-semibold">Apply Filters</Text>
-            </TouchableOpacity>
+              variant="luxury"
+              fullWidth
+            />
           </View>
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 24,
+    paddingBottom: 40,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+});

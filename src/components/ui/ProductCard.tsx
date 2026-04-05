@@ -9,10 +9,16 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  useColorScheme,
 } from 'react-native';
-import { useColorScheme } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  interpolate,
+} from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { getThemeColors, BorderRadius, Spacing, Typography, Colors } from '../../theme';
+import { getThemeColors, BorderRadius, Spacing, Typography, Colors, Animation } from '../../theme';
 import { Badge } from './Badge';
 import type { Product } from '../../types';
 
@@ -24,6 +30,8 @@ interface ProductCardProps {
   style?: any;
 }
 
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
 export function ProductCard({
   product,
   onPress,
@@ -33,6 +41,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  const scale = useSharedValue(1);
 
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice;
@@ -42,11 +51,31 @@ export function ProductCard({
     return `ZMW ${price.toLocaleString()}`;
   };
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    shadowOpacity: interpolate(scale.value, [1, 1.05], [0.06, 0.15]),
+  }));
+
+  const onPressIn = () => {
+    scale.value = withSpring(1.05, Animation.spring);
+  };
+
+  const onPressOut = () => {
+    scale.value = withSpring(1, Animation.spring);
+  };
+
   return (
-    <TouchableOpacity
-      style={[styles.container, { backgroundColor: theme.surface }, style]}
+    <AnimatedTouchableOpacity
+      style={[
+        styles.container,
+        { backgroundColor: theme.surface, shadowColor: colorScheme === 'dark' ? Colors.gold : '#000' },
+        animatedStyle,
+        style,
+      ]}
       onPress={() => onPress(product)}
-      activeOpacity={0.85}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      activeOpacity={0.9}
     >
       {/* Image */}
       <View style={[styles.imageContainer, { borderRadius: BorderRadius.lg }]}>
@@ -120,7 +149,7 @@ export function ProductCard({
           </View>
         )}
       </View>
-    </TouchableOpacity>
+    </AnimatedTouchableOpacity>
   );
 }
 
@@ -128,10 +157,12 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    ...{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 5,
   },
   imageContainer: {
-    height: 200,
+    height: 220,
     position: 'relative',
     backgroundColor: '#E8E4DF',
   },
@@ -164,7 +195,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.caption,
     fontFamily: 'Inter-Medium',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   name: {
     fontSize: Typography.sizes.body,

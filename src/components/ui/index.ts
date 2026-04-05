@@ -13,3 +13,4 @@ export { EmptyState } from './EmptyState';
 export { LoadingSpinner } from './LoadingSpinner';
 export { BottomSheet } from './BottomSheet';
 export { SearchBar } from './SearchBar';
+export { GlassView } from './GlassView';
