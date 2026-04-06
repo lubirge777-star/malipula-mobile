@@ -18,7 +18,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { getThemeColors, BorderRadius, Spacing, Typography, Colors, Animation } from '../../theme';
+import { getThemeColors, BorderRadius, Spacing, Typography, Colors, Animation, FontFamily, Shadows } from '../../theme';
 import { Badge } from './Badge';
 import type { Product } from '../../types';
 
@@ -39,8 +39,7 @@ export function ProductCard({
   isWishlisted = false,
   style,
 }: ProductCardProps) {
-  const colorScheme = useColorScheme();
-  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  const theme = getThemeColors('dark');
   const scale = useSharedValue(1);
 
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
@@ -53,11 +52,11 @@ export function ProductCard({
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-    shadowOpacity: interpolate(scale.value, [1, 1.05], [0.06, 0.15]),
+    shadowOpacity: interpolate(scale.value, [1, 1.05], [0.1, 0.2]),
   }));
 
   const onPressIn = () => {
-    scale.value = withSpring(1.05, Animation.spring);
+    scale.value = withSpring(1.02, Animation.spring);
   };
 
   const onPressOut = () => {
@@ -68,7 +67,7 @@ export function ProductCard({
     <AnimatedTouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: theme.surface, shadowColor: colorScheme === 'dark' ? Colors.gold : '#000' },
+        { backgroundColor: '#1A1A1F', shadowColor: Colors.gold },
         animatedStyle,
         style,
       ]}
@@ -77,8 +76,8 @@ export function ProductCard({
       onPressOut={onPressOut}
       activeOpacity={0.9}
     >
-      {/* Image */}
-      <View style={[styles.imageContainer, { borderRadius: BorderRadius.lg }]}>
+      {/* Visual Container */}
+      <View style={styles.imageContainer}>
         {primaryImage && (
           <Image
             source={{ uri: primaryImage.url }}
@@ -87,13 +86,13 @@ export function ProductCard({
           />
         )}
 
-        {/* Badges */}
-        <View style={styles.badgesRow}>
-          {product.isNew && <Badge label="New" variant="info" size="sm" />}
-          {hasDiscount && <Badge label="Sale" variant="error" size="sm" />}
+        {/* Status Overlay */}
+        <View style={styles.badgesCol}>
+          {product.isNew && <Badge label="ESTATE" variant="info" size="sm" />}
+          {hasDiscount && <Badge label="OFFER" variant="error" size="sm" />}
         </View>
 
-        {/* Wishlist Button */}
+        {/* Wishlist Interaction */}
         {onToggleWishlist && (
           <TouchableOpacity
             style={styles.wishlistButton}
@@ -101,53 +100,43 @@ export function ProductCard({
               e.stopPropagation();
               onToggleWishlist(product.id);
             }}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons
               name={isWishlisted ? 'heart' : 'heart-outline'}
-              size={20}
-              color={isWishlisted ? Colors.error : colorScheme === 'dark' ? '#FFFFFF' : '#333333'}
+              size={18}
+              color={isWishlisted ? Colors.error : Colors.white}
             />
           </TouchableOpacity>
         )}
+        
+        <View style={styles.priceTag}>
+          <Text style={styles.priceTagText}>{formatPrice(displayPrice)}</Text>
+        </View>
       </View>
 
-      {/* Info */}
+      {/* Narrative Section */}
       <View style={styles.info}>
-        <Text
-          style={[styles.category, { color: theme.textSecondary }]}
-          numberOfLines={1}
-        >
+        <Text style={styles.category} numberOfLines={1}>
           {product.category?.name}
         </Text>
 
-        <Text
-          style={[styles.name, { color: theme.text }]}
-          numberOfLines={2}
-        >
+        <Text style={styles.name} numberOfLines={2}>
           {product.name}
         </Text>
 
-        <View style={styles.priceRow}>
-          <Text style={[styles.price, { color: theme.text }]}>
-            {formatPrice(displayPrice)}
-          </Text>
-          {hasDiscount && (
-            <Text style={[styles.originalPrice, { color: theme.textSecondary }]}>
-              {formatPrice(product.basePrice)}
-            </Text>
-          )}
-        </View>
-
-        {/* Rating */}
-        {product.rating > 0 && (
+        <View style={styles.footerRow}>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={12} color={Colors.gold} />
-            <Text style={[styles.rating, { color: theme.textSecondary }]}>
-              {product.rating.toFixed(1)} ({product.reviewCount})
+            <Ionicons name="star" size={10} color={Colors.gold} />
+            <Text style={styles.rating}>
+              {product.rating.toFixed(1)}
             </Text>
           </View>
-        )}
+          {hasDiscount && (
+             <Text style={styles.originalPrice}>
+               {formatPrice(product.basePrice)}
+             </Text>
+          )}
+        </View>
       </View>
     </AnimatedTouchableOpacity>
   );
@@ -155,77 +144,100 @@ export function ProductCard({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: 24,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.15)',
+    ...Shadows.md,
   },
   imageContainer: {
-    height: 220,
+    height: 190,
     position: 'relative',
-    backgroundColor: '#E8E4DF',
+    backgroundColor: '#151518',
   },
   image: {
     width: '100%',
     height: '100%',
+    opacity: 0.85,
   },
-  badgesRow: {
+  badgesCol: {
     position: 'absolute',
-    top: Spacing.sm,
-    left: Spacing.sm,
-    flexDirection: 'row',
-    gap: Spacing.xs,
+    top: 12,
+    left: 12,
+    gap: 6,
   },
   wishlistButton: {
     position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    top: 12,
+    right: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: 'rgba(15, 15, 18, 0.6)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  priceTag: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: 'rgba(201, 169, 98, 0.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderTopLeftRadius: 16,
+  },
+  priceTagText: {
+    color: '#0F0F12',
+    fontFamily: FontFamily.bold,
+    fontSize: 12,
+    fontWeight: '900',
   },
   info: {
-    padding: Spacing.md,
+    padding: 16,
   },
   category: {
-    fontSize: Typography.sizes.caption,
-    fontFamily: 'Inter-Medium',
+    fontSize: 10,
+    fontFamily: FontFamily.medium,
+    color: Colors.gold,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.5,
+    marginBottom: 4,
   },
   name: {
-    fontSize: Typography.sizes.body,
-    fontFamily: 'Inter-SemiBold',
-    marginTop: Spacing.xs,
-    lineHeight: 22,
+    fontSize: 14,
+    fontFamily: FontFamily.display,
+    color: Colors.white,
+    fontWeight: '700',
+    lineHeight: 20,
+    height: 40,
   },
-  priceRow: {
+  footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  price: {
-    fontSize: Typography.sizes.price,
-    fontFamily: 'Inter-Bold',
-  },
-  originalPrice: {
-    fontSize: 13,
-    fontFamily: 'Inter-Regular',
-    textDecorationLine: 'line-through',
+    justifyContent: 'space-between',
+    marginTop: 12,
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: Spacing.xs,
+    backgroundColor: 'rgba(201, 169, 98, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   rating: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
+    fontSize: 10,
+    color: Colors.gold,
+    fontWeight: '800',
+  },
+  originalPrice: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.3)',
+    textDecorationLine: 'line-through',
+    fontWeight: '600',
   },
 });
+

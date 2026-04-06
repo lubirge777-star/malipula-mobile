@@ -95,8 +95,8 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <StatusBar
-              style={isDark ? 'light' : 'dark'}
-              backgroundColor={isDark ? Colors.navy : Colors.ivory}
+              style={isDark ? "light" : "dark"}
+              backgroundColor={theme.background}
             />
             <Slot />
           </ThemeProvider>

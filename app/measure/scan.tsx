@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useColorScheme } from 'react-native';
-import { Colors, getThemeColors } from '../../src/theme';
-import { Button, GlassView } from '../../src/components/ui';
-// Note: expo-camera would be used here in a real device environment
-// import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Colors, Fonts, getThemeColors } from '../../src/theme';
+import { Button } from '../../src/components/ui/Button';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
+// Note: expo-camera would be used here in a real device environment
 import * as Haptics from 'expo-haptics';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -15,7 +14,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export default function MeasurementScanScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  const isDark = colorScheme === 'dark';
+  const theme = getThemeColors(isDark ? 'dark' : 'light');
   
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState(1); // 1: Front, 2: Profile, 3: Success
@@ -27,7 +27,6 @@ export default function MeasurementScanScreen() {
       interval = setInterval(() => {
         setScanProgress(prev => {
           const next = prev + 2;
-          // Trigger a very light tick every 20%
           if (next % 20 === 0) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }
@@ -59,118 +58,113 @@ export default function MeasurementScanScreen() {
 
     return (
       <View style={styles.overlay} pointerEvents="none">
-        {/* Human Silhouette Guide Frame */}
         <View style={styles.guideFrame}>
-             {/* Simple SVG/View representation of a body frame */}
              <View style={[styles.bodyFrame, { borderColor: isScanning ? Colors.gold : 'rgba(255,255,255,0.3)' }]}>
                 <View style={styles.headFrame} />
                 <View style={styles.torsoFrame} />
-                <View className="flex-row justify-between w-full h-1/2">
+                <View style={styles.armsRow}>
                     <View style={styles.armFrame} />
                     <View style={styles.armFrame} />
                 </View>
              </View>
         </View>
         
-        {/* Scanning Beam */}
         {isScanning && (
-          <View 
-            style={[styles.scanLine, { top: `${scanProgress}%` }]} 
-          />
+          <View style={[styles.scanLine, { top: `${scanProgress}%` }]} />
         )}
       </View>
     );
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* simulated Camera Viewport */}
-      <View style={[styles.cameraPlaceholder, { backgroundColor: '#1A1A1A' }]}>
-        <View className="items-center justify-center h-full">
+      <View style={styles.cameraPlaceholder}>
+        <View style={styles.cameraCenter}>
             <Ionicons name="camera-outline" size={64} color="rgba(255,255,255,0.1)" />
-            <Text className="text-gray-600 mt-4 font-heading text-lg">AI Vision Engine Active</Text>
+            <Text style={styles.cameraText}>AI Vision Engine Active</Text>
         </View>
         
         {renderGuideOverlay()}
 
         {/* Top Controls */}
-        <View className="absolute top-12 left-6 right-6 flex-row justify-between items-center">
-          <TouchableOpacity 
-            onPress={() => router.back()}
-            className="p-3 bg-black/40 rounded-full"
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
+        <Animated.View entering={FadeInDown.delay(100)} style={styles.topControls}>
+          <TouchableOpacity onPress={() => router.back()} style={[styles.navButton, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.8)' : 'rgba(255, 255, 255, 0.8)', borderColor: theme.border }]} activeOpacity={0.7}>
+            <Ionicons name="arrow-back" size={24} color={theme.text} />
           </TouchableOpacity>
-          <GlassView intensity={15} className="px-5 py-2 rounded-full border border-gold/30">
-            <Text className="text-gold font-bold text-[10px] uppercase tracking-widest">
-              Scan: {scanStep === 1 ? 'Front Pose' : scanStep === 2 ? 'Profile Pose' : 'Completed'}
+          <View style={[styles.badgeContainer, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.8)' : 'rgba(255, 255, 255, 0.8)' }]}>
+            <Text style={styles.badgeText}>
+              SCAN: {scanStep === 1 ? 'FRONT POSE' : scanStep === 2 ? 'PROFILE POSE' : 'COMPLETED'}
             </Text>
-          </GlassView>
-          <TouchableOpacity className="p-3 bg-black/40 rounded-full">
-            <Ionicons name="flash-off" size={24} color="#FFF" />
+          </View>
+          <TouchableOpacity style={[styles.navButton, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.8)' : 'rgba(255, 255, 255, 0.8)', borderColor: theme.border }]} activeOpacity={0.7}>
+            <Ionicons name="flash-off" size={24} color={theme.text} />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        {/* Scan Status */}
+        {/* Scan Status Display */}
         {isScanning && (
-            <View className="absolute top-1/4 left-0 right-0 items-center">
-                <Text className="text-gold font-display text-4xl shadow-lg">{scanProgress}%</Text>
-                <Text className="text-white text-[10px] uppercase tracking-[4px] mt-2">Surface Mapping...</Text>
+            <View style={styles.scanningStatus}>
+                <Text style={styles.scanningPercent}>{scanProgress}%</Text>
+                <Text style={styles.scanningSubtitle}>SURFACE MAPPING...</Text>
             </View>
         )}
       </View>
 
-      {/* Bottom Controls */}
-      <View style={[styles.bottomPanel, { backgroundColor: theme.background }]}>
+      {/* Bottom Controls / Glass Card */}
+      <Animated.View entering={FadeInUp.duration(800).delay(200)} style={[styles.bottomPanel, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.85)' : 'rgba(255,255,255,0.85)', borderColor: theme.border }]}>
         {scanStep < 3 ? (
-            <View className="p-8">
-                <Text className="text-navy dark:text-ivory font-heading text-xl text-center mb-2">
+            <View style={styles.panelContent}>
+                <Text style={[styles.panelTitle, { color: theme.text }]}>
                     {scanStep === 1 ? 'Step 1: Frontal View' : 'Step 2: Side Profile'}
                 </Text>
-                <Text className="text-app-text-secondary text-center text-xs px-6 mb-8">
+                <Text style={[styles.panelDescription, { color: theme.textSecondary }]}>
                     {scanStep === 1 
                         ? 'Position your feet together and arms at a 45° angle from your body.' 
                         : 'Turn 90° to your right, keeping your posture straight and natural.'}
                 </Text>
                 
-                <View className="items-center mb-8">
+                <View style={styles.captureContainer}>
                     <TouchableOpacity 
                         onPress={startScan}
                         disabled={isScanning}
                         style={[styles.captureBtn, { opacity: isScanning ? 0.5 : 1 }]}
                     >
-                        <View className="w-16 h-16 rounded-full bg-gold items-center justify-center">
-                            <Ionicons name="scan" size={32} color="#FFF" />
+                        <View style={styles.captureBtnInner}>
+                            <Ionicons name="scan" size={32} color="#000" />
                         </View>
                         <View style={styles.captureBtnRing} />
                     </TouchableOpacity>
                 </View>
             </View>
         ) : (
-            <View className="p-8 items-center">
-                <View className="w-16 h-16 bg-green-500/10 rounded-full items-center justify-center mb-4">
-                    <Ionicons name="checkmark-circle" size={40} color="#22C55E" />
+            <View style={styles.panelContentCompleted}>
+                <View style={[styles.successIconContainer, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.15)' }]}>
+                    <Ionicons name="checkmark" size={36} color="#10B981" />
                 </View>
-                <Text className="text-navy dark:text-ivory font-heading text-2xl text-center mb-2">Metrics Captured</Text>
-                <Text className="text-app-text-secondary text-center text-sm px-6 mb-8">
-                    Our AI has calculated 28 body metrics. You can now proceed to review your fit or save the profile.
+                <Text style={[styles.panelTitle, { color: theme.text }]}>Metrics Captured</Text>
+                <Text style={[styles.panelDescription, { color: theme.textSecondary }]}>
+                    Our AI has successfully calculated 28 detailed body metrics. You can now save your profile.
                 </Text>
                 
-                <View className="w-full gap-3">
+                <View style={styles.actionButtons}>
                     <Button 
-                        title="Review My Measurements" 
-                        variant="luxury" 
+                        title="REVIEW MEASUREMENTS" 
+                        variant="primary" 
                         onPress={() => router.push('/measure/profiles')} 
+                        fullWidth
                     />
+                    <View style={{ height: 12 }} />
                     <Button 
-                        title="Back to Dashboard" 
+                        title="BACK TO HUB" 
                         variant="outline" 
-                        onPress={() => router.push('/')} 
+                        onPress={() => router.replace('/measure')} 
+                        fullWidth
                     />
                 </View>
             </View>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -181,19 +175,32 @@ const styles = StyleSheet.create({
   },
   cameraPlaceholder: {
     flex: 1,
+    backgroundColor: '#050505',
     position: 'relative',
+  },
+  cameraCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraText: {
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: Fonts.interMedium,
+    fontSize: 16,
+    marginTop: 16,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   guideFrame: {
     width: SCREEN_WIDTH * 0.6,
     height: SCREEN_HEIGHT * 0.5,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: -80,
   },
   bodyFrame: {
     width: '100%',
@@ -209,7 +216,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
+    borderColor: 'rgba(255,255,255,0.4)',
     marginBottom: 10,
   },
   torsoFrame: {
@@ -217,15 +224,21 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  armsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '140%',
+    position: 'absolute',
+    top: 150,
   },
   armFrame: {
-    width: 20,
+    width: 24,
     height: 120,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
-    marginTop: -20,
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   scanLine: {
     position: 'absolute',
@@ -239,29 +252,141 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     zIndex: 10,
   },
+  topControls: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  navButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  badgeContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.3)',
+  },
+  badgeText: {
+    fontFamily: Fonts.interBold,
+    fontSize: 10,
+    color: Colors.gold,
+    letterSpacing: 2,
+  },
+  scanningStatus: {
+    position: 'absolute',
+    top: '30%',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  scanningPercent: {
+    fontFamily: Fonts.playfairBold,
+    fontSize: 56,
+    color: Colors.gold,
+    textShadowColor: 'rgba(201, 169, 98, 0.5)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 15,
+  },
+  scanningSubtitle: {
+    fontFamily: Fonts.interBold,
+    fontSize: 10,
+    letterSpacing: 4,
+    color: '#FFF',
+    marginTop: 8,
+  },
   bottomPanel: {
-    height: 340,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    marginTop: -40,
+    position: 'absolute',
+    bottom: 32,
+    left: 24,
+    right: 24,
+    borderRadius: 36,
+    borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
+    elevation: 8,
+    ...Platform.select({
+      web: { backdropFilter: 'blur(16px)' }
+    })
+  },
+  panelContent: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  panelTitle: {
+    fontFamily: Fonts.playfairBold,
+    fontSize: 24,
+    textAlign: 'center',
+  },
+  panelDescription: {
+    fontFamily: Fonts.interRegular,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 32,
+    lineHeight: 22,
+  },
+  captureContainer: {
+    alignItems: 'center',
   },
   captureBtn: {
     position: 'relative',
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  captureBtnInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.gold,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
   },
   captureBtnRing: {
     position: 'absolute',
-    top: -10,
-    left: -10,
-    right: -10,
-    bottom: -10,
+    top: -12,
+    left: -12,
+    right: -12,
+    bottom: -12,
     borderRadius: 50,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.gold,
-    opacity: 0.3,
+    opacity: 0.4,
   },
+  panelContentCompleted: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  successIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  actionButtons: {
+    width: '100%',
+    marginTop: 8,
+  }
 });
+

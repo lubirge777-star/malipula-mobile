@@ -4,14 +4,14 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Image,
   StyleSheet,
+  StatusBar,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { Colors, FontFamily, getThemeColors } from '../../../src/theme';
+import { GlassView } from '../../../src/components/ui';
 
 type MenuItem = {
   id: string;
@@ -28,128 +28,344 @@ type MenuGroup = {
 
 const menuGroups: MenuGroup[] = [
   {
-    title: 'My Shopping',
+    title: 'My Suite',
     items: [
-      { id: 'orders', icon: 'cube-outline', label: 'My Orders', route: '/account/orders', badge: '2' },
-      { id: 'measurements', icon: 'resize-outline', label: 'My Measurements', route: '/account/measurements' },
+      { id: 'orders', icon: 'cube-outline', label: 'My Commissions', route: '/account/orders', badge: '2' },
+      { id: 'measurements', icon: 'body-outline', label: 'Measurements Profile', route: '/account/measurements' },
       { id: 'wishlist', icon: 'heart-outline', label: 'Wishlist', route: '/account/wishlist', badge: '5' },
-      { id: 'addresses', icon: 'location-outline', label: 'Saved Addresses', route: '/account/addresses' },
+      { id: 'addresses', icon: 'location-outline', label: 'Delivery Destinations', route: '/account/addresses' },
     ],
   },
   {
     title: 'Preferences',
     items: [
       { id: 'notifications', icon: 'notifications-outline', label: 'Notifications', route: '' },
-      { id: 'settings', icon: 'settings-outline', label: 'App Settings', route: '/account/settings' },
+      { id: 'settings', icon: 'options-outline', label: 'Application Settings', route: '/account/settings' },
     ],
   },
   {
-    title: 'Support',
+    title: 'Concierge',
     items: [
-      { id: 'help', icon: 'help-circle-outline', label: 'Help & Support', route: '' },
-      { id: 'about', icon: 'information-circle-outline', label: 'About Malipula', route: '' },
+      { id: 'help', icon: 'chatbubbles-outline', label: 'Concierge Service', route: '' },
+      { id: 'about', icon: 'information-circle-outline', label: 'House of Malipula', route: '' },
     ],
   },
 ];
 
 const quickStats = [
-  { id: '1', label: 'Orders', value: '12', icon: 'cube' as const },
-  { id: '2', label: 'Appointments', value: '8', icon: 'calendar' as const },
-  { id: '3', label: 'Points', value: '2,450', icon: 'star' as const },
+  { id: '1', label: 'Archives', value: '12', icon: 'albums' as const },
+  { id: '2', label: 'Sessions', value: '8', icon: 'calendar' as const },
+  { id: '3', label: 'Privilege', value: '2,450', icon: 'diamond' as const },
 ];
 
 export default function AccountScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const theme = getThemeColors(isDark ? 'dark' : 'light');
+  const styles = getStyles(theme, isDark);
 
   return (
-    <View className="flex-1 bg-ivory">
-      <ScrollView showsVerticalScrollIndicator={false} className="pb-8">
+    <View style={styles.container}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Profile Header */}
-        <View className="bg-navy px-4 pt-12 pb-8 rounded-b-3xl">
-          <View className="flex-row items-center gap-4">
-            <View className="w-20 h-20 rounded-full bg-gold/20 items-center justify-center border-2 border-gold/40">
-              <Ionicons name="person" size={36} color={GOLD} />
+        <View style={styles.header}>
+          <View style={styles.profileRow}>
+            <View style={styles.avatarContainer}>
+              <Ionicons name="person" size={36} color={Colors.gold} />
             </View>
-            <View className="flex-1">
-              <Text className="text-white font-heading text-xl">Michael Kimaro</Text>
-              <Text className="text-white/60 text-sm mt-0.5">michael.kimaro@email.com</Text>
-              <View className="flex-row items-center gap-1.5 mt-2">
-                <View className="bg-gold/20 px-2.5 py-0.5 rounded-full flex-row items-center gap-1">
-                  <Ionicons name="diamond" size={10} color={GOLD} />
-                  <Text className="text-gold text-[10px] font-bold tracking-wider uppercase">
-                    Gold Member
-                  </Text>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>Michael Kimaro</Text>
+              <Text style={styles.profileEmail}>michael.kimaro@email.com</Text>
+              <View style={styles.badgeRow}>
+                <View style={styles.tierBadge}>
+                  <Ionicons name="diamond" size={10} color={Colors.gold} />
+                  <Text style={styles.tierText}>Gold Member</Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity className="p-2">
-              <Ionicons name="create-outline" size={20} color="#FFFFFF80" />
+            <TouchableOpacity style={styles.editBtn}>
+              <Ionicons name="create-outline" size={20} color={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Quick Stats */}
-        <View className="mx-4 -mt-6 bg-white rounded-2xl p-4 shadow-sm flex-row justify-around">
-          {quickStats.map((stat) => (
-            <TouchableOpacity key={stat.id} className="items-center gap-1.5" activeOpacity={0.7}>
-              <View className="w-10 h-10 rounded-xl bg-gold/10 items-center justify-center">
-                <Ionicons name={stat.icon} size={18} color={GOLD} />
-              </View>
-              <Text className="text-navy font-bold text-base">{stat.value}</Text>
-              <Text className="text-charcoal/50 text-xs">{stat.label}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.statsWrapper}>
+          <GlassView intensity={isDark ? 30 : 60} style={styles.statsContainer}>
+            {quickStats.map((stat, idx) => (
+              <React.Fragment key={stat.id}>
+                {idx > 0 && <View style={styles.statDivider} />}
+                <TouchableOpacity style={styles.statItem} activeOpacity={0.7}>
+                  <View style={styles.statIconWrapper}>
+                    <Ionicons name={stat.icon} size={20} color={Colors.gold} />
+                  </View>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </TouchableOpacity>
+              </React.Fragment>
+            ))}
+          </GlassView>
         </View>
 
         {/* Menu Groups */}
-        <View className="px-4 mt-5">
+        <View style={styles.menusWrapper}>
           {menuGroups.map((group) => (
-            <View key={group.title} className="mb-5">
-              <Text className="text-charcoal/50 text-xs font-semibold uppercase tracking-wider mb-2 pl-1">
-                {group.title}
-              </Text>
-              <View className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <View key={group.title} style={styles.menuGroup}>
+              <Text style={styles.groupTitle}>{group.title}</Text>
+              <GlassView intensity={isDark ? 15 : 40} style={styles.groupCard}>
                 {group.items.map((item, index) => (
                   <TouchableOpacity
                     key={item.id}
-                    className={`flex-row items-center px-4 py-3.5 ${
-                      index < group.items.length - 1 ? 'border-b border-gray-50' : ''
-                    }`}
+                    style={[
+                      styles.menuItem,
+                      index < group.items.length - 1 && styles.menuItemBorder
+                    ]}
                     onPress={() => item.route ? router.push(item.route as any) : null}
                     activeOpacity={0.7}
                   >
-                    <View className="w-9 h-9 rounded-xl bg-ivory items-center justify-center mr-3">
-                      <Ionicons name={item.icon} size={18} color={NAVY} />
+                    <View style={styles.menuIconWrapper}>
+                      <Ionicons name={item.icon} size={18} color={Colors.gold} />
                     </View>
-                    <Text className="flex-1 text-navy text-sm font-medium">{item.label}</Text>
+                    <Text style={styles.menuLabel}>{item.label}</Text>
                     {item.badge && (
-                      <View className="bg-gold/15 px-2 py-0.5 rounded-full mr-2">
-                        <Text className="text-gold text-[10px] font-bold">{item.badge}</Text>
+                      <View style={styles.menuBadge}>
+                        <Text style={styles.menuBadgeText}>{item.badge}</Text>
                       </View>
                     )}
-                    <Ionicons name="chevron-forward" size={18} color="#6B636180" />
+                    <Ionicons name="chevron-forward" size={18} color={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} />
                   </TouchableOpacity>
                 ))}
-              </View>
+              </GlassView>
             </View>
           ))}
 
           {/* Sign Out */}
-          <TouchableOpacity className="bg-white rounded-2xl p-4 flex-row items-center justify-center shadow-sm mb-4">
-            <Ionicons name="log-out-outline" size={18} color="#DC2626" />
-            <Text className="text-red-500 font-semibold text-sm ml-2">Sign Out</Text>
+          <TouchableOpacity style={styles.signOutBtn}>
+            <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+            <Text style={styles.signOutText}>Sign Out</Text>
           </TouchableOpacity>
 
           {/* App Version */}
-          <Text className="text-center text-charcoal/30 text-xs mb-4">Malipula Suits v1.0.0</Text>
+          <Text style={styles.versionText}>House of Malipula v1.0.0</Text>
         </View>
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  profileGradient: {
-    backgroundColor: NAVY,
+const getStyles = (theme: any, isDark: boolean) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  header: {
+    paddingTop: 80,
+    paddingHorizontal: 24,
+    paddingBottom: 48,
+    backgroundColor: isDark ? 'rgba(15, 15, 18, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  avatarContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(201, 169, 98, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.4)',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontFamily: FontFamily.display,
+    fontSize: 24,
+    color: theme.text,
+    fontWeight: '700',
+  },
+  profileEmail: {
+    color: theme.textSecondary,
+    fontSize: 14,
+    marginTop: 4,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  tierBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(201, 169, 98, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.3)',
+  },
+  tierText: {
+    color: Colors.gold,
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  editBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+  },
+  statsWrapper: {
+    marginHorizontal: 16,
+    marginTop: -32,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingVertical: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.2)',
+    backgroundColor: isDark ? 'rgba(15, 15, 18, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+    marginVertical: 8,
+  },
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+  },
+  statValue: {
+    color: theme.text,
+    fontSize: 18,
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+  },
+  statLabel: {
+    color: theme.textSecondary,
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 4,
+  },
+  menusWrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 32,
+  },
+  menuGroup: {
+    marginBottom: 24,
+  },
+  groupTitle: {
+    color: Colors.gold,
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+  groupCard: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    backgroundColor: isDark ? 'rgba(15, 15, 18, 0.6)' : 'rgba(255, 255, 255, 0.6)',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  menuItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+  },
+  menuIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+  },
+  menuLabel: {
+    flex: 1,
+    color: theme.text,
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  menuBadge: {
+    backgroundColor: 'rgba(201, 169, 98, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginRight: 12,
+  },
+  menuBadgeText: {
+    color: Colors.gold,
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    borderRadius: 24,
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.2)',
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  signOutText: {
+    color: '#EF4444',
+    fontSize: 15,
+    fontWeight: '700',
+    marginLeft: 8,
+  },
+  versionText: {
+    textAlign: 'center',
+    color: theme.textSecondary,
+    fontSize: 12,
+    letterSpacing: 1,
+    fontFamily: FontFamily.display,
   },
 });

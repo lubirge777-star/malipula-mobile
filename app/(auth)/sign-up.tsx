@@ -1,21 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import Animated, { 
+  FadeInDown, 
+  FadeInUp, 
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  withSequence,
+  interpolateColor
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, Fonts, getThemeColors } from '../../src/theme';
+import { Button } from '../../src/components/ui/Button';
+import { Input } from '../../src/components/ui/Input';
 
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,6 +41,36 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+  const isDark = colorScheme === 'dark';
+
+  // Background Animation Loop
+  const bgAnim = useSharedValue(0);
+
+  useEffect(() => {
+    bgAnim.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 8000 }),
+        withTiming(0, { duration: 8000 })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedBackgroundStyle = useAnimatedStyle(() => {
+    const lightColors1 = ['#fcfbfa', '#f7f4ee'];
+    const lightColors2 = ['#f7f4ee', '#f0ede6'];
+    const darkColors1 = ['#0a0a0c', '#121215'];
+    const darkColors2 = ['#121215', '#1a1a1f'];
+    
+    const color1 = interpolateColor(bgAnim.value, [0, 1], isDark ? darkColors1 : lightColors1);
+    const color2 = interpolateColor(bgAnim.value, [0, 1], isDark ? darkColors2 : lightColors2);
+    return {
+      backgroundColor: color1,
+    };
+  });
 
   const isValid =
     fullName.length >= 2 &&
@@ -42,10 +89,10 @@ export default function SignUpScreen() {
   };
 
   const getPasswordStrength = () => {
-    if (password.length === 0) return { label: '', color: '', width: 0 };
-    if (password.length < 6) return { label: 'Weak', color: '#DC2626', width: 33 };
-    if (password.length < 8) return { label: 'Fair', color: '#D97706', width: 66 };
-    return { label: 'Strong', color: '#059669', width: 100 };
+    if (password.length === 0) return { label: '', color: 'transparent', width: 0 };
+    if (password.length < 6) return { label: 'WEAK', color: '#EF4444', width: 33 };
+    if (password.length < 8) return { label: 'FAIR', color: '#F59E0B', width: 66 };
+    return { label: 'STRONG', color: '#10B981', width: 100 };
   };
 
   const strength = getPasswordStrength();
@@ -53,192 +100,359 @@ export default function SignUpScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-ivory"
+      style={{ flex: 1 }}
     >
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <Animated.View style={[StyleSheet.absoluteFill, animatedBackgroundStyle]}>
+        <AnimatedLinearGradient
+          colors={[isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.7)', isDark ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0)']}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
-        <View className="px-8 pt-14 pb-6">
-          <TouchableOpacity className="mb-4" onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={NAVY} />
+        <Animated.View 
+          entering={FadeInDown.duration(1000).delay(100).springify()}
+          style={styles.header}
+        >
+          <TouchableOpacity 
+            style={[styles.backButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0,0,0,0.04)', borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.08)' }]} 
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chevron-back" size={28} color={Colors.gold} />
           </TouchableOpacity>
-          <View className="w-16 h-16 bg-gold/15 rounded-2xl items-center justify-center mb-6">
-            <Ionicons name="person-add-outline" size={32} color={GOLD} />
+          
+          <View style={[styles.logoBadge, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.9)' : '#FFFFFF', borderColor: isDark ? 'rgba(201, 169, 98, 0.3)' : 'rgba(201, 169, 98, 0.3)' }]}>
+            <Ionicons name="person-add-outline" size={38} color={Colors.gold} />
           </View>
-          <Text className="font-heading text-3xl text-navy">Create Account</Text>
-          <Text className="text-charcoal/60 text-base mt-2 leading-relaxed">
-            Join Malipula to explore our premium collection
+          <Text style={[styles.heading, { color: theme.text }]}>Create Account</Text>
+          <Text style={[styles.subheading, { color: theme.textSecondary }]}>
+            Join the Malipula inner circle for exclusive access to bespoke refinements.
           </Text>
-        </View>
+        </Animated.View>
 
-        {/* Form */}
-        <View className="px-6">
+        {/* Form Card */}
+        <Animated.View 
+          entering={FadeInUp.duration(1000).delay(300).springify()}
+          style={[styles.formCard, { backgroundColor: isDark ? 'rgba(20, 20, 22, 0.85)' : 'rgba(255, 255, 255, 0.85)', borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255,255,255,1)' }]}
+        >
           {/* Full Name */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-navy mb-1.5">Full Name</Text>
-            <View className="bg-white rounded-xl px-4 py-3.5 flex-row items-center shadow-sm">
-              <Ionicons name="person-outline" size={18} color="#6B6361" />
-              <TextInput
-                className="flex-1 ml-3 text-sm text-navy"
-                placeholder="Enter your full name"
-                placeholderTextColor="#6B636160"
-                value={fullName}
-                onChangeText={setFullName}
-              />
-            </View>
-          </View>
+          <Input
+            label="Full Name"
+            placeholder="Your full name"
+            value={fullName}
+            onChangeText={setFullName}
+            icon={<Ionicons name="person-outline" size={20} color={Colors.gold} />}
+          />
 
           {/* Email */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-navy mb-1.5">Email Address</Text>
-            <View className="bg-white rounded-xl px-4 py-3.5 flex-row items-center shadow-sm">
-              <Ionicons name="mail-outline" size={18} color="#6B6361" />
-              <TextInput
-                className="flex-1 ml-3 text-sm text-navy"
-                placeholder="Enter your email"
-                placeholderTextColor="#6B636160"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
+          <Input
+            label="Email Address"
+            placeholder="Email address"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            icon={<Ionicons name="mail-outline" size={20} color={Colors.gold} />}
+          />
 
           {/* Phone */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-navy mb-1.5">Phone Number</Text>
-            <View className="bg-white rounded-xl px-4 py-3.5 flex-row items-center shadow-sm">
-              <Ionicons name="phone-portrait-outline" size={18} color="#6B6361" />
-              <TextInput
-                className="flex-1 ml-3 text-sm text-navy"
-                placeholder="+255 xxx xxx xxx"
-                placeholderTextColor="#6B636160"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-              />
-            </View>
-          </View>
+          <Input
+            label="Phone Number"
+            placeholder="+255 xxx xxx xxx"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            icon={<Ionicons name="phone-portrait-outline" size={20} color={Colors.gold} />}
+          />
 
           {/* Password */}
-          <View className="mb-1.5">
-            <Text className="text-sm font-medium text-navy mb-1.5">Password</Text>
-            <View className="bg-white rounded-xl px-4 py-3.5 flex-row items-center shadow-sm">
-              <Ionicons name="lock-closed-outline" size={18} color="#6B6361" />
-              <TextInput
-                className="flex-1 ml-3 text-sm text-navy"
-                placeholder="Min. 8 characters"
-                placeholderTextColor="#6B636160"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons
-                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={18}
-                  color="#6B6361"
-                />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.passwordWrapper}>
+            <Input
+              label="Password"
+              placeholder="Min. 8 characters"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              icon={<Ionicons name="lock-closed-outline" size={20} color={Colors.gold} />}
+              rightIcon={
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={10}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={20}
+                    color={Colors.gold}
+                  />
+                </TouchableOpacity>
+              }
+            />
+            {/* Password Strength Meter */}
+            {password.length > 0 && (
+              <Animated.View entering={FadeInDown} style={styles.strengthRow}>
+                <View style={[styles.strengthBarContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
+                  <View 
+                    style={[
+                      styles.strengthBar, 
+                      { width: `${strength.width}%`, backgroundColor: strength.color }
+                    ]} 
+                  />
+                </View>
+                <Text style={[styles.strengthLabel, { color: strength.color }]}>
+                  {strength.label}
+                </Text>
+              </Animated.View>
+            )}
           </View>
 
-          {/* Password Strength */}
-          {password.length > 0 && (
-            <View className="flex-row items-center gap-2 mb-4 pl-1">
-              <View className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <View
-                  className="h-full rounded-full"
-                  style={{ width: `${strength.width}%`, backgroundColor: strength.color }}
-                />
-              </View>
-              <Text className="text-[11px] font-medium" style={{ color: strength.color }}>
-                {strength.label}
-              </Text>
-            </View>
-          )}
-
           {/* Confirm Password */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-navy mb-1.5">Confirm Password</Text>
-            <View className="bg-white rounded-xl px-4 py-3.5 flex-row items-center shadow-sm">
-              <Ionicons name="lock-closed-outline" size={18} color="#6B6361" />
-              <TextInput
-                className="flex-1 ml-3 text-sm text-navy"
-                placeholder="Re-enter your password"
-                placeholderTextColor="#6B636160"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showPassword}
-              />
-              {confirmPassword.length > 0 && (
-                <Ionicons
-                  name={password === confirmPassword ? 'checkmark-circle' : 'close-circle'}
-                  size={18}
-                  color={password === confirmPassword ? '#059669' : '#DC2626'}
-                />
-              )}
-            </View>
+          <View style={{ marginTop: 10 }}>
+            <Input
+              label="Confirm Password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showPassword}
+              icon={<Ionicons name="lock-closed-outline" size={20} color={Colors.gold} />}
+              rightIcon={
+                confirmPassword.length > 0 && (
+                  <Ionicons
+                    name={password === confirmPassword ? 'checkmark-circle' : 'close-circle'}
+                    size={20}
+                    color={password === confirmPassword ? '#10B981' : '#EF4444'}
+                  />
+                )
+              }
+            />
           </View>
 
           {/* Terms */}
           <TouchableOpacity
-            className="flex-row items-center gap-2 mb-6"
+            style={styles.termsRow}
             onPress={() => setAgreeTerms(!agreeTerms)}
+            activeOpacity={0.7}
           >
-            <View className={`w-5 h-5 rounded border-2 items-center justify-center ${
-              agreeTerms ? 'bg-gold border-gold' : 'border-gray-300'
-            }`}>
-              {agreeTerms && <Ionicons name="checkmark" size={12} color="#FFFFFF" />}
+            <View style={[
+              styles.checkbox,
+              agreeTerms && { backgroundColor: Colors.gold, borderColor: Colors.gold },
+              (!agreeTerms && !isDark) && { borderColor: 'rgba(0,0,0,0.2)' }
+            ]}>
+              {agreeTerms && <Ionicons name="checkmark" size={14} color="#FFF" />}
             </View>
-            <Text className="text-charcoal/60 text-xs flex-1">
-              I agree to the <Text className="text-gold font-medium">Terms of Service</Text> and{' '}
-              <Text className="text-gold font-medium">Privacy Policy</Text>
+            <Text style={[styles.termsText, { color: theme.textSecondary }]}>
+              I agree to the <Text style={styles.highlight}>Terms</Text> and{' '}
+              <Text style={styles.highlight}>Privacy Policy</Text>
             </Text>
           </TouchableOpacity>
 
-          {/* Sign Up Button */}
-          <TouchableOpacity
-            className={`py-3.5 rounded-xl items-center mb-6 ${
-              isValid ? 'bg-gold' : 'bg-gray-200'
-            }`}
-            onPress={handleSignUp}
-            disabled={!isValid || isLoading}
-            activeOpacity={0.85}
-          >
-            <Text className={`font-bold text-base ${isValid ? 'text-navy' : 'text-charcoal/40'}`}>
-              {isLoading ? 'Creating Account...' : 'Create Account'}
-            </Text>
-          </TouchableOpacity>
+          {/* Create Account Button */}
+          <View style={styles.actionSection}>
+            <Button
+              title="CREATE ACCOUNT"
+              onPress={handleSignUp}
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={isLoading}
+              disabled={!isValid}
+            />
+          </View>
 
           {/* Divider */}
-          <View className="flex-row items-center gap-3 mb-6">
-            <View className="flex-1 h-px bg-gray-200" />
-            <Text className="text-charcoal/40 text-xs">OR CONTINUE WITH</Text>
-            <View className="flex-1 h-px bg-gray-200" />
+          <View style={styles.dividerRow}>
+            <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.06)' }]} />
+            <Text style={[styles.dividerText, { color: theme.textSecondary }]}>OR SIGN UP WITH</Text>
+            <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.06)' }]} />
           </View>
 
-          {/* Social Sign Up */}
-          <View className="flex-row gap-3 mb-8">
-            <TouchableOpacity className="flex-1 bg-white rounded-xl py-3.5 items-center shadow-sm flex-row justify-center gap-2">
-              <Ionicons name="logo-google" size={18} color="#DB4437" />
-              <Text className="text-charcoal text-sm font-medium">Google</Text>
+          {/* Social Row */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#FFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0,0,0,0.08)' }]} activeOpacity={0.7}>
+              <Ionicons name="logo-google" size={20} color={isDark ? '#FFF' : '#EA4335'} />
             </TouchableOpacity>
-            <TouchableOpacity className="flex-1 bg-white rounded-xl py-3.5 items-center shadow-sm flex-row justify-center gap-2">
-              <Ionicons name="logo-apple" size={18} color="#000000" />
-              <Text className="text-charcoal text-sm font-medium">Apple</Text>
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#FFF', borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0,0,0,0.08)' }]} activeOpacity={0.7}>
+              <Ionicons name="logo-apple" size={20} color={isDark ? '#FFF' : '#1A1A1A'} />
             </TouchableOpacity>
           </View>
+        </Animated.View>
 
-          {/* Sign In Link */}
-          <View className="items-center pb-8">
-            <Text className="text-charcoal/60 text-sm">Already have an account?{' '}</Text>
-            <TouchableOpacity onPress={() => router.push('/sign-in')}>
-              <Text className="text-gold font-semibold text-sm">Sign In</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Footer */}
+        <Animated.View 
+          entering={FadeInUp.duration(1000).delay(500).springify()}
+          style={styles.footer}
+        >
+          <Text style={[styles.footerText, { color: theme.textSecondary }]}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/sign-in')} activeOpacity={0.7}>
+            <Text style={styles.signInLink}>Sign In</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  header: {
+    paddingHorizontal: 32,
+    paddingTop: 80,
+    paddingBottom: 32,
+    alignItems: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 24,
+    top: 70,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  logoBadge: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+    marginTop: 20,
+    shadowColor: Colors.gold,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  heading: {
+    fontFamily: Fonts.playfairBold,
+    fontSize: 42,
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  subheading: {
+    fontFamily: Fonts.interRegular,
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 16,
+    lineHeight: 26,
+    paddingHorizontal: 20,
+  },
+  formCard: {
+    marginHorizontal: 22,
+    borderRadius: 36,
+    paddingHorizontal: 28,
+    paddingVertical: 36,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.5,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  passwordWrapper: {
+    position: 'relative',
+    marginBottom: 0,
+  },
+  strengthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -8, // Adjust based on Input margin
+    marginBottom: 10,
+    paddingHorizontal: 4,
+  },
+  strengthBarContainer: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginRight: 10,
+  },
+  strengthBar: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  strengthLabel: {
+    fontFamily: Fonts.interBold,
+    fontSize: 10,
+    letterSpacing: 1,
+  },
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 32,
+    paddingHorizontal: 4,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: 'rgba(201, 169, 98, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    backgroundColor: 'transparent',
+  },
+  termsText: {
+    fontFamily: Fonts.interMedium,
+    fontSize: 14,
+    flex: 1,
+  },
+  highlight: {
+    color: Colors.gold,
+    fontFamily: Fonts.interBold,
+  },
+  actionSection: {
+    marginBottom: 8,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 32,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 11,
+    marginHorizontal: 16,
+    letterSpacing: 2,
+  },
+  socialRow: {
+    flexDirection: 'row',
+    gap: 16,
+    justifyContent: 'center',
+  },
+  socialButton: {
+    flex: 1,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  footerText: {
+    fontFamily: Fonts.interMedium,
+    fontSize: 15,
+  },
+  signInLink: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 15,
+    color: Colors.gold,
+  },
+});

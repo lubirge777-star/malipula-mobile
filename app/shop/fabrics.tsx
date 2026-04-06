@@ -9,9 +9,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { useColorScheme } from 'react-native';
+import { getThemeColors, Colors } from '../../src/theme';
 
 const materialFilters = ['All', 'Wool', 'Linen', 'Cotton', 'Silk', 'Cashmere', 'Polyester'];
 const qualityFilters = ['All Tiers', 'Premium', 'Standard', 'Budget'];
@@ -35,6 +34,9 @@ export default function FabricsScreen() {
   const [activeMaterial, setActiveMaterial] = useState('All');
   const [activeQuality, setActiveQuality] = useState('All Tiers');
 
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
+
   const filteredFabrics = fabrics.filter((f) => {
     const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesMaterial = activeMaterial === 'All' || f.material === activeMaterial;
@@ -51,26 +53,27 @@ export default function FabricsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
       {/* Header */}
       <View className="px-4 pt-4 pb-2 flex-row items-center gap-3">
         <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">Fabric Library</Text>
-          <Text className="text-charcoal/60 text-xs">{fabrics.length} fabrics available</Text>
+          <Text className="font-heading text-xl" style={{ color: theme.text }}>Fabric Library</Text>
+          <Text className="text-xs" style={{ color: theme.textSecondary }}>{fabrics.length} fabrics available</Text>
         </View>
       </View>
 
       {/* Search */}
       <View className="px-4 py-2">
-        <View className="flex-row items-center bg-white rounded-xl px-3.5 py-2.5 shadow-sm">
-          <Ionicons name="search" size={18} color="#6B6361" />
+        <View className="flex-row items-center rounded-xl px-3.5 py-2.5 shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+          <Ionicons name="search" size={18} color={theme.textSecondary} />
           <TextInput
-            className="flex-1 ml-2 text-sm text-navy"
+            className="flex-1 ml-2 text-sm"
+            style={{ color: theme.text }}
             placeholder="Search fabrics..."
-            placeholderTextColor="#6B636180"
+            placeholderTextColor={theme.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -79,15 +82,19 @@ export default function FabricsScreen() {
 
       {/* Material Filter */}
       <View className="px-4 py-1">
-        <Text className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider mb-2">Material</Text>
+        <Text className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: theme.textSecondary }}>Material</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2">
           {materialFilters.map((m) => (
             <TouchableOpacity
               key={m}
-              className={`px-3.5 py-1.5 rounded-full ${activeMaterial === m ? 'bg-gold' : 'bg-white'}`}
+              className={`px-3.5 py-1.5 rounded-full border`}
+              style={{ 
+                backgroundColor: activeMaterial === m ? Colors.gold : theme.surface,
+                borderColor: activeMaterial === m ? 'transparent' : theme.border
+              }}
               onPress={() => setActiveMaterial(m)}
             >
-              <Text className={`text-xs font-semibold ${activeMaterial === m ? 'text-navy' : 'text-charcoal'}`}>
+              <Text className={`text-xs font-semibold`} style={{ color: activeMaterial === m ? '#FFFFFF' : theme.text }}>
                 {m}
               </Text>
             </TouchableOpacity>
@@ -97,15 +104,19 @@ export default function FabricsScreen() {
 
       {/* Quality Filter */}
       <View className="px-4 py-2">
-        <Text className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider mb-2">Quality Tier</Text>
+        <Text className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: theme.textSecondary }}>Quality Tier</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2">
           {qualityFilters.map((q) => (
             <TouchableOpacity
               key={q}
-              className={`px-3.5 py-1.5 rounded-full ${activeQuality === q ? 'bg-navy' : 'bg-white'}`}
+              className={`px-3.5 py-1.5 rounded-full border`}
+              style={{
+                backgroundColor: activeQuality === q ? theme.text : theme.surface,
+                borderColor: activeQuality === q ? 'transparent' : theme.border
+              }}
               onPress={() => setActiveQuality(q)}
             >
-              <Text className={`text-xs font-semibold ${activeQuality === q ? 'text-gold' : 'text-charcoal'}`}>
+              <Text className={`text-xs font-semibold`} style={{ color: activeQuality === q ? theme.background : theme.text }}>
                 {q}
               </Text>
             </TouchableOpacity>
@@ -121,7 +132,8 @@ export default function FabricsScreen() {
             return (
               <TouchableOpacity
                 key={fabric.id}
-                className="bg-white rounded-2xl p-4 shadow-sm flex-row gap-3.5"
+                className="rounded-2xl p-4 shadow-sm flex-row gap-3.5 border"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                 activeOpacity={0.85}
               >
                 <View
@@ -132,14 +144,14 @@ export default function FabricsScreen() {
                 </View>
                 <View className="flex-1 justify-between py-0.5">
                   <View>
-                    <Text className="font-semibold text-navy text-sm mb-0.5" numberOfLines={1}>
+                    <Text className="font-semibold text-sm mb-0.5" style={{ color: theme.text }} numberOfLines={1}>
                       {fabric.name}
                     </Text>
-                    <Text className="text-charcoal/60 text-xs mb-1">{fabric.composition}</Text>
+                    <Text className="text-xs mb-1" style={{ color: theme.textSecondary }}>{fabric.composition}</Text>
                     <View className="flex-row items-center gap-2">
                       <View className="flex-row items-center gap-1">
-                        <Ionicons name="location-outline" size={11} color="#6B6361" />
-                        <Text className="text-charcoal/50 text-[11px]">{fabric.origin}</Text>
+                        <Ionicons name="location-outline" size={11} color={theme.textSecondary} />
+                        <Text className="text-[11px]" style={{ color: theme.textSecondary }}>{fabric.origin}</Text>
                       </View>
                       <View
                         className="px-2 py-0.5 rounded-full"

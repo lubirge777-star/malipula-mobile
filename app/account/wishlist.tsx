@@ -8,9 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { useColorScheme } from 'react-native';
+import { getThemeColors, Colors } from '../../src/theme';
 
 const wishlistItems = [
   { id: '1', name: 'The Diplomat 3-Piece', price: 1450000, image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=300&h=400&fit=crop', category: 'Suits' },
@@ -25,6 +24,8 @@ const formatPrice = (price: number) => `TZS ${price.toLocaleString()}`;
 
 export default function WishlistScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [items, setItems] = useState(wishlistItems);
 
   const removeItem = (id: string) => {
@@ -32,45 +33,47 @@ export default function WishlistScreen() {
   };
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
       {/* Header */}
       <View className="px-4 pt-4 pb-3 flex-row items-center gap-3">
         <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">Wishlist</Text>
-          <Text className="text-charcoal/60 text-xs">{items.length} saved items</Text>
+          <Text className="font-heading text-xl" style={{ color: theme.text }}>Wishlist</Text>
+          <Text className="text-xs" style={{ color: theme.textSecondary }}>{items.length} saved items</Text>
         </View>
       </View>
 
       {items.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
-          <View className="w-24 h-24 bg-gold/10 rounded-full items-center justify-center mb-5">
-            <Ionicons name="heart-outline" size={44} color={GOLD} />
+          <View className="w-24 h-24 rounded-full items-center justify-center mb-5" style={{ backgroundColor: 'rgba(201, 169, 98, 0.1)' }}>
+            <Ionicons name="heart-outline" size={44} color={Colors.gold} />
           </View>
-          <Text className="font-heading text-xl text-navy mb-2">Your wishlist is empty</Text>
-          <Text className="text-charcoal/60 text-sm text-center mb-6">
+          <Text className="font-heading text-xl mb-2" style={{ color: theme.text }}>Your wishlist is empty</Text>
+          <Text className="text-sm text-center mb-6" style={{ color: theme.textSecondary }}>
             Save items you love and come back to them later
           </Text>
-          <TouchableOpacity className="bg-gold px-8 py-3 rounded-xl" onPress={() => router.push('/shop')}>
-            <Text className="text-navy font-semibold">Browse Collection</Text>
+          <TouchableOpacity className="px-8 py-3 rounded-xl" style={{ backgroundColor: Colors.gold }} onPress={() => router.push('/shop')}>
+            <Text className="font-semibold" style={{ color: theme.background }}>Browse Collection</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} className="px-4 pb-8">
           <View className="flex-row flex-wrap gap-3 mt-2">
             {items.map((item) => (
-              <View key={item.id} className="w-[48%] bg-white rounded-2xl overflow-hidden shadow-sm">
+              <View key={item.id} className="w-[48%] rounded-2xl overflow-hidden shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
                 <TouchableOpacity
-                  className="relative h-48 bg-gray-50"
+                  className="relative h-48"
+                  style={{ backgroundColor: theme.background }}
                   onPress={() => router.push(`/shop/${item.id}`)}
                   activeOpacity={0.85}
                 >
                   <Image source={{ uri: item.image }} className="w-full h-full" resizeMode="cover" />
                   <View className="absolute top-2 right-2">
                     <TouchableOpacity
-                      className="w-8 h-8 bg-white/90 rounded-full items-center justify-center shadow-sm"
+                      className="w-8 h-8 rounded-full items-center justify-center shadow-sm"
+                      style={{ backgroundColor: 'rgba(250, 250, 245, 0.9)' }}
                       onPress={() => removeItem(item.id)}
                     >
                       <Ionicons name="heart" size={16} color="#DC2626" />
@@ -78,13 +81,13 @@ export default function WishlistScreen() {
                   </View>
                 </TouchableOpacity>
                 <View className="p-3">
-                  <Text className="text-charcoal/50 text-[10px] uppercase tracking-wider mb-0.5">{item.category}</Text>
-                  <Text className="font-medium text-navy text-sm mb-1" numberOfLines={1}>{item.name}</Text>
+                  <Text className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: theme.textSecondary }}>{item.category}</Text>
+                  <Text className="font-medium text-sm mb-1" style={{ color: theme.text }} numberOfLines={1}>{item.name}</Text>
                   <View className="flex-row items-center justify-between">
                     <Text className="text-gold font-semibold text-sm">{formatPrice(item.price)}</Text>
                   </View>
-                  <TouchableOpacity className="bg-gold rounded-lg py-2 items-center mt-2.5">
-                    <Text className="text-navy text-xs font-semibold">Add to Cart</Text>
+                  <TouchableOpacity className="rounded-lg py-2 items-center mt-2.5" style={{ backgroundColor: Colors.gold }}>
+                    <Text className="text-xs font-semibold" style={{ color: theme.background }}>Add to Cart</Text>
                   </TouchableOpacity>
                 </View>
               </View>

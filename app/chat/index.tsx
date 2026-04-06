@@ -20,19 +20,19 @@ export default function ChatScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View className="pt-16 px-6 pb-6 flex-row items-center justify-between border-b border-gold/10">
+      <View className="pt-16 px-6 pb-6 flex-row items-center justify-between border-b" style={{ borderColor: theme.border }}>
         <View className="flex-row items-center gap-3">
             <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
                 <Ionicons name="arrow-back" size={24} color={theme.text} />
             </TouchableOpacity>
             <View className="relative">
-                <View className="w-10 h-10 bg-gold/20 rounded-full items-center justify-center">
+                <View className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: 'rgba(201,169,98,0.2)' }}>
                     <Ionicons name="person" size={20} color={Colors.gold} />
                 </View>
-                <View className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-navy" />
+                <View className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2" style={{ borderColor: theme.background }} />
             </View>
             <View>
-                <Text className="font-heading text-lg text-navy dark:text-ivory">Master Stylist</Text>
+                <Text className="font-heading text-lg" style={{ color: theme.text }}>Master Stylist</Text>
                 <Text className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Active Now</Text>
             </View>
         </View>
@@ -54,26 +54,28 @@ export default function ChatScreen() {
                 className={`mb-6 max-w-[80%] ${msg.sender === 'user' ? 'self-end items-end' : 'self-start items-start'}`}
             >
                 <View 
-                    className={`p-4 rounded-[24px] ${msg.sender === 'user' ? 'bg-gold' : 'bg-app-surface border border-gold/10'}`}
+                    className={`p-4 rounded-[24px] border`}
+                    style={{ backgroundColor: msg.sender === 'user' ? Colors.gold : theme.surface, borderColor: msg.sender === 'user' ? 'transparent' : theme.border }}
                 >
-                    <Text className={`text-sm leading-5 ${msg.sender === 'user' ? 'text-white' : 'text-navy dark:text-ivory'}`}>
+                    <Text className="text-sm leading-5" style={{ color: msg.sender === 'user' ? '#FFFFFF' : theme.text }}>
                         {msg.text}
                     </Text>
                 </View>
-                <Text className="text-[9px] text-gray-400 mt-1 px-2">{msg.time}</Text>
+                <Text className="text-[9px] mt-1 px-2" style={{ color: theme.textSecondary }}>{msg.time}</Text>
             </View>
         ))}
       </ScrollView>
 
       {/* Input */}
-      <View className="p-6 pb-12 border-t border-gold/10 bg-app-background">
-        <GlassView intensity={10} className="flex-row items-center p-2 pl-6 rounded-full border border-gold/20 bg-app-surface/50">
+      <View className="p-6 pb-12 border-t" style={{ backgroundColor: theme.background, borderColor: theme.border }}>
+        <GlassView intensity={10} className="flex-row items-center p-2 pl-6 rounded-full border border-gold/20" style={{ backgroundColor: 'rgba(201,169,98,0.05)' }}>
             <TextInput 
-                className="flex-1 h-12 text-navy dark:text-ivory text-sm"
+                className="flex-1 h-12 text-sm"
+                style={{ color: theme.text }}
                 placeholder="Talk to your stylist..."
                 placeholderTextColor={theme.textSecondary}
             />
-            <TouchableOpacity className="w-10 h-10 bg-gold rounded-full items-center justify-center ml-2">
+            <TouchableOpacity className="w-10 h-10 rounded-full items-center justify-center ml-2" style={{ backgroundColor: Colors.gold }}>
                 <Ionicons name="send" size={16} color="#FFF" />
             </TouchableOpacity>
         </GlassView>

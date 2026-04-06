@@ -1,48 +1,17 @@
-import React from 'react';
-import { View, TouchableOpacity, Platform, StyleSheet, useColorScheme, Text } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, TouchableOpacity, Platform, StyleSheet, Text, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
+import Animated, { 
+  useAnimatedStyle, 
+  withSpring, 
+  useSharedValue,
+  withTiming,
+  FadeIn
+} from 'react-native-reanimated';
 import { Colors, getThemeColors } from '../theme';
-import type { TabRoute } from './types';
-
-const TAB_ROUTES: TabRoute[] = [
-  {
-    name: 'home',
-    label: 'Home',
-    icon: 'home-outline' as any,
-    activeIcon: 'home' as any,
-    route: '/',
-  },
-  {
-    name: 'shop',
-    label: 'Fabrics',
-    icon: 'journal-outline' as any,
-    activeIcon: 'journal' as any,
-    route: '/shop',
-  },
-  {
-    name: 'builder',
-    label: 'Build',
-    icon: 'cube-outline' as any,
-    activeIcon: 'cube' as any,
-    route: '/builder',
-    isFAB: true,
-  },
-  {
-    name: 'chat',
-    label: 'Chat',
-    icon: 'chatbubbles-outline' as any,
-    activeIcon: 'chatbubbles' as any,
-    route: '/chat',
-  },
-  {
-    name: 'account',
-    label: 'Account',
-    icon: 'person-outline' as any,
-    activeIcon: 'person' as any,
-    route: '/account',
-  },
-];
+import { TAB_ROUTES } from './types';
 
 interface CustomTabBarProps {
   state: {
@@ -56,19 +25,15 @@ interface CustomTabBarProps {
 export default function BottomTabBar({ state, navigation }: CustomTabBarProps) {
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const theme = getThemeColors(isDark ? 'dark' : 'light');
-  const cartItemCount = 3; // Mock cart count
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background, borderTopColor: isDark ? 'rgba(201, 169, 98, 0.1)' : 'rgba(201, 169, 98, 0.2)' }]}>
+    <BlurView intensity={Platform.OS === 'ios' ? 40 : 80} tint={colorScheme === 'dark' ? 'dark' : 'light'} style={[styles.container, { borderTopColor: theme.border }]}>
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
           const tabConfig = TAB_ROUTES[index];
           if (!tabConfig) return null;
-
-          const showBadge = false; // Add custom badge logic if needed for other tabs
 
           const onPress = () => {
             const event = navigation.emit({
@@ -82,51 +47,76 @@ export default function BottomTabBar({ state, navigation }: CustomTabBarProps) {
             }
           };
 
-          if ((tabConfig as any).isFAB) {
+          if (tabConfig.isFAB) {
             return (
               <TouchableOpacity
                 key={route.key}
                 onPress={onPress}
-                activeOpacity={0.85}
+                activeOpacity={0.9}
                 style={styles.fabContainer}
               >
-                <View style={[styles.fab, { backgroundColor: isDark ? Colors.gold : Colors.navy }]}>
-                  <Ionicons name={tabConfig.icon as any} size={28} color={isDark ? Colors.navy : Colors.gold} />
+                <View style={styles.fabLayer}>
+                   <View style={[styles.fab, { backgroundColor: Colors.gold }]}>
+                    <Ionicons name={tabConfig.icon as any} size={28} color="#000" />
+                  </View>
                   <View style={styles.fabGlow} />
                 </View>
-                <Text style={[styles.fabLabel, { color: isFocused ? Colors.gold : theme.textSecondary }]}>{tabConfig.label}</Text>
+                <Text style={[styles.fabLabel, { color: isFocused ? Colors.gold : 'rgba(255,255,255,0.6)' }]}>
+                  {tabConfig.label}
+                </Text>
               </TouchableOpacity>
             );
           }
 
           return (
-            <TouchableOpacity
+            <TabItem
               key={route.key}
+              isFocused={isFocused}
+              tabConfig={tabConfig}
               onPress={onPress}
-              activeOpacity={0.7}
-              style={styles.tabItem}
-            >
-              <View style={styles.iconWrapper}>
-                <Ionicons
-                  name={(isFocused ? tabConfig.activeIcon : tabConfig.icon) as any}
-                  size={20}
-                  color={isFocused ? Colors.gold : isDark ? '#A0A0A0' : '#6B6361'}
-                />
-                {showBadge && (
-                  <View style={[styles.badge, { borderColor: theme.background }]}>
-                    <Text style={styles.badgeText}>{cartItemCount}</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={[styles.tabLabel, { color: isFocused ? Colors.gold : isDark ? '#A0A0A0' : '#6B6361' }]}>
-                {tabConfig.label}
-              </Text>
-              {isFocused && <View style={styles.activeIndicator} />}
-            </TouchableOpacity>
+              theme={theme}
+            />
           );
         })}
       </View>
-    </View>
+    </BlurView>
+  );
+}
+
+function TabItem({ isFocused, tabConfig, onPress, theme }: any) {
+  const scale = useSharedValue(isFocused ? 1.1 : 1);
+
+  useEffect(() => {
+    scale.value = withSpring(isFocused ? 1.1 : 1, { damping: 15 });
+  }, [isFocused]);
+
+  const animatedIconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={styles.tabItem}
+    >
+      <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
+        <Ionicons
+          name={(isFocused ? tabConfig.activeIcon : tabConfig.icon) as any}
+          size={22}
+          color={isFocused ? Colors.gold : theme.textSecondary}
+        />
+      </Animated.View>
+      <Text style={[styles.tabLabel, { color: isFocused ? Colors.gold : theme.textSecondary, fontWeight: isFocused ? '700' : '500' }]}>
+        {tabConfig.label}
+      </Text>
+      {isFocused && (
+        <Animated.View 
+          entering={FadeIn.duration(300)}
+          style={styles.activeIndicator} 
+        />
+      )}
+    </TouchableOpacity>
   );
 }
 
@@ -141,7 +131,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: 8,
     paddingTop: 8,
-    height: Platform.OS === 'ios' ? 72 : 56,
+    height: Platform.OS === 'ios' ? 72 : 64,
   },
   tabItem: {
     flex: 1,
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 9,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'Inter',
     marginTop: 4,
     letterSpacing: 0.5,
   },
@@ -167,6 +157,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -30,
+  },
+  fabLayer: {
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   fab: {
     width: 56,
@@ -179,8 +176,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 8,
-    position: 'relative',
-    overflow: 'hidden',
+    zIndex: 2,
   },
   fabGlow: {
     position: 'absolute',
@@ -188,36 +184,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: Colors.gold,
+    borderRadius: 30,
+    opacity: 0.15,
+    zIndex: 1,
   },
   fabLabel: {
     fontSize: 9,
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Inter',
     marginTop: 4,
     fontWeight: '700',
-  },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -10,
-    backgroundColor: Colors.gold,
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-  },
-  badgeText: {
-    color: '#FFF',
-    fontSize: 8,
-    fontFamily: 'Poppins_600SemiBold',
   },
   activeIndicator: {
     width: 3,
     height: 3,
     backgroundColor: Colors.gold,
     borderRadius: 1.5,
-    marginTop: 2,
+    marginTop: 4,
   },
 });

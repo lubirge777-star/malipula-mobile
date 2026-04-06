@@ -10,9 +10,17 @@ import {
   StyleSheet,
   ViewStyle,
   TextInputProps,
+  Pressable,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
-import { getThemeColors, BorderRadius, Spacing, Colors } from '../../theme';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  withSpring, 
+  interpolateColor 
+} from 'react-native-reanimated';
+import { getThemeColors, Spacing, Colors } from '../../theme';
 
 interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
@@ -38,13 +46,36 @@ export function Input({
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [isFocused, setIsFocused] = useState(false);
+  const focusAnim = useSharedValue(0);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    focusAnim.value = withSpring(1, { damping: 20, stiffness: 200 });
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    focusAnim.value = withTiming(0, { duration: 300 });
+  };
 
   const hasError = !!error;
-  const borderColor = hasError
-    ? Colors.error
-    : isFocused
-    ? Colors.gold
-    : theme.border;
+
+  const animatedWrapperStyle = useAnimatedStyle(() => {
+    const borderColor = interpolateColor(
+      focusAnim.value,
+      [0, 1],
+      [theme.border, Colors.gold]
+    );
+
+    return {
+      borderColor: hasError ? Colors.error : borderColor,
+      transform: [
+        { scale: withSpring(isFocused ? 1.01 : 1, { damping: 20, stiffness: 300 }) }
+      ],
+      shadowOpacity: withTiming(isFocused && !hasError ? 0.1 : 0, { duration: 200 }),
+      shadowRadius: withTiming(isFocused ? 8 : 0),
+    };
+  });
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -54,15 +85,11 @@ export function Input({
         </Text>
       )}
 
-      <View
+      <Animated.View
         style={[
           styles.inputWrapper,
-          {
-            backgroundColor: theme.background,
-            borderColor,
-            borderWidth: 1.5,
-            borderRadius: BorderRadius.md,
-          },
+          { backgroundColor: theme.background },
+          animatedWrapperStyle,
         ]}
       >
         {icon && (
@@ -84,8 +111,8 @@ export function Input({
           placeholder={placeholder}
           placeholderTextColor={theme.textSecondary}
           onChangeText={onChangeText}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           autoCapitalize={props.autoCapitalize ?? 'none'}
           {...props}
         />
@@ -93,7 +120,7 @@ export function Input({
         {rightIcon && (
           <View style={styles.iconRight}>{rightIcon}</View>
         )}
-      </View>
+      </Animated.View>
 
       {error && (
         <Text style={[styles.errorText, { color: Colors.error }]}>
@@ -115,36 +142,46 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   label: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    marginBottom: Spacing.xs,
+    fontSize: 13,
+    fontFamily: 'Inter-Bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: Spacing.sm,
+    marginLeft: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 50,
+    height: 58, // Taller inputs for premium feel
+    borderWidth: 1.5,
+    borderRadius: 20, // Rounded to match premium spec
+    shadowColor: Colors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Inter-Medium',
     height: '100%',
   },
   iconLeft: {
     paddingLeft: Spacing.lg,
-    marginRight: Spacing.sm,
+    marginRight: Spacing.xs,
   },
   iconRight: {
     paddingRight: Spacing.lg,
   },
   errorText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    marginTop: Spacing.xs,
+    fontFamily: 'Inter-Medium',
+    marginTop: Spacing.sm,
+    marginLeft: 4,
   },
   hintText: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
+    marginLeft: 4,
   },
 });

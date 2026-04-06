@@ -9,9 +9,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { useColorScheme } from 'react-native';
+import { getThemeColors, Colors } from '../../src/theme';
 
 const orders = [
   {
@@ -80,6 +79,8 @@ const formatPrice = (price: number) => `TZS ${price.toLocaleString()}`;
 
 export default function OrdersScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [activeFilter, setActiveFilter] = useState('all');
 
   const filters = [
@@ -95,28 +96,29 @@ export default function OrdersScreen() {
   });
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
       {/* Header */}
       <View className="px-4 pt-4 pb-3 flex-row items-center gap-3">
         <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">My Orders</Text>
-          <Text className="text-charcoal/60 text-xs">{orders.length} total orders</Text>
+          <Text className="font-heading text-xl" style={{ color: theme.text }}>My Orders</Text>
+          <Text className="text-xs" style={{ color: theme.textSecondary }}>{orders.length} total orders</Text>
         </View>
       </View>
 
       {/* Filters */}
       <View className="px-4 py-2">
-        <View className="flex-row bg-white rounded-xl p-1 shadow-sm">
+        <View className="flex-row rounded-xl p-1 shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
           {filters.map((f) => (
             <TouchableOpacity
               key={f.id}
-              className={`flex-1 py-2 rounded-lg items-center ${activeFilter === f.id ? 'bg-gold' : ''}`}
+              className={`flex-1 py-2 rounded-lg items-center`}
+              style={{ backgroundColor: activeFilter === f.id ? Colors.gold : 'transparent' }}
               onPress={() => setActiveFilter(f.id)}
             >
-              <Text className={`text-sm font-semibold ${activeFilter === f.id ? 'text-navy' : 'text-charcoal'}`}>
+              <Text className={`text-sm font-semibold`} style={{ color: activeFilter === f.id ? '#FFFFFF' : theme.text }}>
                 {f.label}
               </Text>
             </TouchableOpacity>
@@ -134,14 +136,15 @@ export default function OrdersScreen() {
             return (
               <TouchableOpacity
                 key={order.id}
-                className="bg-white rounded-2xl p-4 shadow-sm"
+                className="rounded-2xl p-4 shadow-sm border"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                 activeOpacity={0.85}
               >
                 {/* Order Header */}
                 <View className="flex-row items-center justify-between mb-3">
                   <View>
-                    <Text className="font-semibold text-navy text-sm">{order.id}</Text>
-                    <Text className="text-charcoal/50 text-xs mt-0.5">{order.date}</Text>
+                    <Text className="font-semibold text-sm" style={{ color: theme.text }}>{order.id}</Text>
+                    <Text className="text-xs mt-0.5" style={{ color: theme.textSecondary }}>{order.date}</Text>
                   </View>
                   <View className="px-2.5 py-1 rounded-full flex-row items-center gap-1" style={{ backgroundColor: config.bg }}>
                     <Ionicons name={config.icon as any} size={12} color={config.color} />
@@ -155,10 +158,10 @@ export default function OrdersScreen() {
                 <View className="flex-row gap-2 mb-3">
                   {order.items.map((item, index) => (
                     <View key={index} className="flex-row items-center gap-2">
-                      <Image source={{ uri: item.image }} className="w-12 h-12 rounded-lg bg-gray-50" />
+                      <Image source={{ uri: item.image }} className="w-12 h-12 rounded-lg" style={{ backgroundColor: theme.background }} />
                       <View className="flex-1">
-                        <Text className="text-navy text-xs font-medium" numberOfLines={1}>{item.name}</Text>
-                        <Text className="text-charcoal/50 text-[11px]">Qty: {item.qty}</Text>
+                        <Text className="text-xs font-medium" style={{ color: theme.text }} numberOfLines={1}>{item.name}</Text>
+                        <Text className="text-[11px]" style={{ color: theme.textSecondary }}>Qty: {item.qty}</Text>
                       </View>
                     </View>
                   ))}
@@ -184,16 +187,16 @@ export default function OrdersScreen() {
                     </View>
                     <View className="flex-row justify-between mt-1.5 px-0.5">
                       {statusSteps.filter((_, i) => i % 2 === 0).map((step) => (
-                        <Text key={step} className="text-[9px] text-charcoal/40">{step}</Text>
+                        <Text key={step} className="text-[9px]" style={{ color: theme.textSecondary }}>{step}</Text>
                       ))}
                     </View>
                   </View>
                 )}
 
                 {/* Footer */}
-                <View className="flex-row items-center justify-between pt-3 border-t border-gray-50">
+                <View className="flex-row items-center justify-between pt-3 border-t" style={{ borderColor: theme.border }}>
                   <View>
-                    <Text className="text-charcoal/50 text-[11px]">
+                    <Text className="text-[11px]" style={{ color: theme.textSecondary }}>
                       {order.trackingNumber ? `Tracking: ${order.trackingNumber}` : `Est. ${order.estimatedDelivery}`}
                     </Text>
                     <Text className="text-gold font-bold text-sm mt-0.5">{formatPrice(order.total)}</Text>

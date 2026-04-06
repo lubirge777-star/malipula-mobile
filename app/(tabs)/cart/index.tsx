@@ -8,12 +8,13 @@ import {
   Image,
   StyleSheet,
   Alert,
+  StatusBar,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { Colors, FontFamily, Shadows, getThemeColors } from '../../../src/theme';
+import { GlassView } from '../../../src/components/ui';
 
 const cartItems = [
   {
@@ -23,33 +24,22 @@ const cartItems = [
     price: 1250000,
     quantity: 1,
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
-    color: '#1B2A4A',
-    size: '42',
   },
   {
     id: '2',
-    name: 'Ivory Formal Shirt',
+    name: 'Ivory Formal Kaftan',
     variant: 'White / Size M',
     price: 120000,
     quantity: 2,
     image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=150&h=150&fit=crop',
-    color: '#FFFFFF',
-    size: 'M',
-  },
-  {
-    id: '3',
-    name: 'Silk Pocket Square',
-    variant: 'Burgundy',
-    price: 45000,
-    quantity: 1,
-    image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736c10?w=150&h=150&fit=crop',
-    color: '#7B2D26',
-    size: 'One Size',
   },
 ];
 
 export default function CartScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const theme = getThemeColors(isDark ? 'dark' : 'light');
   const [items, setItems] = useState(cartItems);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -89,125 +79,122 @@ export default function CartScreen() {
   const isEmpty = items.length === 0;
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       {/* Header */}
-      <View className="px-4 pt-4 pb-3 flex-row items-center justify-between">
+      <View style={[styles.header, { backgroundColor: theme.background }]}>
         <View>
-          <Text className="font-heading text-2xl text-navy">My Cart</Text>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>My Archive</Text>
           {!isEmpty && (
-            <Text className="text-charcoal/60 text-sm mt-0.5">
-              {items.length} {items.length === 1 ? 'item' : 'items'}
+            <Text style={styles.headerSubtitle}>
+              {items.length} {items.length === 1 ? 'masterpiece' : 'masterpieces'}
             </Text>
           )}
         </View>
         {!isEmpty && (
-          <TouchableOpacity onPress={() => Alert.alert('Clear Cart', 'Remove all items from cart?', [
+          <TouchableOpacity onPress={() => Alert.alert('Clear Archive', 'Remove all items?', [
             { text: 'Cancel', style: 'cancel' },
             { text: 'Clear', style: 'destructive', onPress: () => setItems([]) },
-          ])}>
-            <Ionicons name="trash-outline" size={20} color="#DC2626" />
+          ])} style={styles.headerTrash}>
+            <Ionicons name="trash-outline" size={20} color="rgba(255, 255, 255, 0.4)" />
           </TouchableOpacity>
         )}
       </View>
 
       {isEmpty ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <View className="w-24 h-24 bg-gold/10 rounded-full items-center justify-center mb-5">
-            <Ionicons name="bag-outline" size={44} color={GOLD} />
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconWrapper}>
+            <Ionicons name="bag-outline" size={44} color={Colors.gold} />
           </View>
-          <Text className="font-heading text-xl text-navy mb-2">Your cart is empty</Text>
-          <Text className="text-charcoal/60 text-sm text-center mb-6">
-            Discover our collection and add items to your cart
+          <Text style={styles.emptyTitle}>Your archive is empty</Text>
+          <Text style={styles.emptySubtitle}>
+            Discover our collection and commission your next masterpiece.
           </Text>
           <TouchableOpacity
-            className="bg-gold px-8 py-3 rounded-xl"
+            style={styles.emptyBtn}
             onPress={() => router.push('/shop')}
           >
-            <Text className="text-navy font-semibold">Start Shopping</Text>
+            <Text style={styles.emptyBtnText}>Enter Gallery</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <>
-          <ScrollView showsVerticalScrollIndicator={false} className="px-4 pb-52">
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* Cart Items */}
-            <View className="gap-3">
+            <View style={styles.itemsContainer}>
               {items.map((item) => (
-                <View key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex-row gap-3">
+                <View key={item.id} style={styles.itemCard}>
                   <Image
                     source={{ uri: item.image }}
-                    className="w-20 h-24 rounded-xl bg-gray-50"
+                    style={styles.itemImage}
                     resizeMode="cover"
                   />
-                  <View className="flex-1 justify-between py-0.5">
+                  <View style={styles.itemDetails}>
                     <View>
-                      <Text className="font-semibold text-navy text-sm mb-0.5" numberOfLines={1}>
+                      <Text style={styles.itemName} numberOfLines={1}>
                         {item.name}
                       </Text>
-                      <Text className="text-charcoal/60 text-xs">{item.variant}</Text>
+                      <Text style={styles.itemVariant}>{item.variant}</Text>
                     </View>
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-gold font-semibold text-sm">
+                    <View style={styles.itemActionsRow}>
+                      <Text style={styles.itemPrice}>
                         {formatPrice(item.price * item.quantity)}
                       </Text>
-                      <View className="flex-row items-center gap-0.5">
+                      <View style={styles.qtyControls}>
                         <TouchableOpacity
-                          className="w-7 h-7 rounded-lg bg-ivory items-center justify-center"
+                          style={styles.qtyBtn}
                           onPress={() => updateQuantity(item.id, -1)}
                         >
-                          <Ionicons name="remove" size={14} color={NAVY} />
+                          <Ionicons name="remove" size={14} color={Colors.gold} />
                         </TouchableOpacity>
-                        <Text className="w-7 text-center text-sm font-semibold text-navy">
-                          {item.quantity}
-                        </Text>
+                        <Text style={styles.qtyText}>{item.quantity}</Text>
                         <TouchableOpacity
-                          className="w-7 h-7 rounded-lg bg-ivory items-center justify-center"
+                          style={styles.qtyBtn}
                           onPress={() => updateQuantity(item.id, 1)}
                         >
-                          <Ionicons name="add" size={14} color={NAVY} />
+                          <Ionicons name="add" size={14} color={Colors.gold} />
                         </TouchableOpacity>
                       </View>
                     </View>
                   </View>
                   <TouchableOpacity
-                    className="absolute top-3 right-3 p-1"
+                    style={styles.removeBtn}
                     onPress={() => removeItem(item.id)}
                   >
-                    <Ionicons name="close" size={16} color="#6B6361" />
+                    <Ionicons name="close" size={16} color="rgba(255,255,255,0.4)" />
                   </TouchableOpacity>
                 </View>
               ))}
             </View>
 
             {/* Promo Code */}
-            <View className="mt-4">
-              <Text className="text-sm font-semibold text-navy mb-2">Promo Code</Text>
-              <View className="flex-row gap-2">
-                <View className="flex-1 flex-row items-center bg-white rounded-xl px-3.5 py-2.5 shadow-sm">
-                  <Ionicons name="ticket-outline" size={16} color={GOLD} />
+            <View style={styles.promoContainer}>
+              <Text style={styles.promoLabel}>Commission Privilege Code</Text>
+              <View style={styles.promoRow}>
+                <View style={styles.promoInputWrapper}>
+                  <Ionicons name="ticket-outline" size={16} color={Colors.gold} />
                   <TextInput
-                    className="flex-1 ml-2 text-sm text-navy font-body"
-                    placeholder="Enter promo code"
-                    placeholderTextColor="#6B636180"
+                    style={styles.promoInput}
+                    placeholder="Enter code"
+                    placeholderTextColor="rgba(255, 255, 255, 0.3)"
                     value={promoCode}
                     onChangeText={setPromoCode}
                   />
                 </View>
                 <TouchableOpacity
-                  className={`px-4 rounded-xl ${
-                    promoApplied ? 'bg-green-100' : 'bg-gold'
-                  }`}
+                  style={[styles.promoApplyBtn, promoApplied && styles.promoAppliedBtn]}
                   onPress={handlePromo}
                 >
-                  <Text className="text-sm font-semibold text-navy">
+                  <Text style={styles.promoApplyText}>
                     {promoApplied ? 'Applied' : 'Apply'}
                   </Text>
                 </TouchableOpacity>
               </View>
               {promoApplied && (
-                <View className="flex-row items-center gap-1.5 mt-2">
-                  <Ionicons name="checkmark-circle" size={14} color="#059669" />
-                  <Text className="text-xs text-green-600 font-medium">
-                    10% discount applied! You save {formatPrice(discount)}
+                <View style={styles.promoSuccessMsg}>
+                  <Ionicons name="checkmark-circle" size={14} color={Colors.gold} />
+                  <Text style={styles.promoSuccessText}>
+                    Privilege applied! Discount: {formatPrice(discount)}
                   </Text>
                 </View>
               )}
@@ -215,37 +202,37 @@ export default function CartScreen() {
           </ScrollView>
 
           {/* Sticky Order Summary */}
-          <View className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl px-4 pt-4 pb-8 shadow-lg" style={styles.summaryBar}>
-            <View className="w-10 h-1 bg-gray-200 rounded-full self-center mb-3" />
-            <View className="space-y-1.5 mb-3">
-              <View className="flex-row justify-between">
-                <Text className="text-charcoal/60 text-sm">Subtotal</Text>
-                <Text className="text-navy text-sm">{formatPrice(subtotal)}</Text>
+          <GlassView intensity={40} style={styles.summaryBar}>
+            <View style={styles.summaryHandle} />
+            <View style={styles.summaryDetails}>
+              <View style={styles.summaryRowItem}>
+                <Text style={styles.summaryLabel}>Subtotal</Text>
+                <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-charcoal/60 text-sm">Delivery</Text>
-                <Text className="text-navy text-sm">{formatPrice(deliveryFee)}</Text>
+              <View style={styles.summaryRowItem}>
+                <Text style={styles.summaryLabel}>Delivery</Text>
+                <Text style={styles.summaryValue}>{formatPrice(deliveryFee)}</Text>
               </View>
               {promoApplied && (
-                <View className="flex-row justify-between">
-                  <Text className="text-green-600 text-sm">Discount</Text>
-                  <Text className="text-green-600 text-sm">-{formatPrice(discount)}</Text>
+                <View style={styles.summaryRowItem}>
+                  <Text style={[styles.summaryLabel, { color: Colors.gold }]}>Discount</Text>
+                  <Text style={[styles.summaryValue, { color: Colors.gold }]}>-{formatPrice(discount)}</Text>
                 </View>
               )}
-              <View className="h-px bg-gray-100 my-1" />
-              <View className="flex-row justify-between">
-                <Text className="font-semibold text-navy">Total</Text>
-                <Text className="font-bold text-gold text-lg">{formatPrice(total)}</Text>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryRowItem}>
+                <Text style={styles.totalLabel}>Total Commission</Text>
+                <Text style={styles.totalValue}>{formatPrice(total)}</Text>
               </View>
             </View>
             <TouchableOpacity
-              className="bg-gold rounded-xl py-3.5 items-center"
+              style={styles.checkoutBtn}
               onPress={() => router.push('/checkout')}
               activeOpacity={0.85}
             >
-              <Text className="text-navy font-bold text-base">Proceed to Checkout</Text>
+              <Text style={styles.checkoutBtnText}>Secure Commission</Text>
             </TouchableOpacity>
-          </View>
+          </GlassView>
         </>
       )}
     </View>
@@ -253,11 +240,295 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitle: {
+    fontFamily: FontFamily.display,
+    fontSize: 28,
+    color: '#FFF',
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 13,
+    marginTop: 4,
+    fontFamily: FontFamily.medium,
+  },
+  headerTrash: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  emptyIconWrapper: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(201, 169, 98, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.3)',
+  },
+  emptyTitle: {
+    fontFamily: FontFamily.display,
+    fontSize: 22,
+    color: '#FFF',
+    marginBottom: 12,
+  },
+  emptySubtitle: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 22,
+  },
+  emptyBtn: {
+    backgroundColor: Colors.gold,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 24,
+  },
+  emptyBtnText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 200,
+  },
+  itemsContainer: {
+    gap: 16,
+  },
+  itemCard: {
+    backgroundColor: 'rgba(15, 15, 18, 0.8)',
+    borderRadius: 20,
+    padding: 12,
+    flexDirection: 'row',
+    gap: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    position: 'relative',
+  },
+  itemImage: {
+    width: 80,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  itemDetails: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  itemName: {
+    color: '#FFF',
+    fontFamily: FontFamily.display,
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+    paddingRight: 20,
+  },
+  itemVariant: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 12,
+  },
+  itemActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  itemPrice: {
+    color: Colors.gold,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  qtyControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  qtyBtn: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qtyText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '600',
+    width: 20,
+    textAlign: 'center',
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoContainer: {
+    marginTop: 32,
+  },
+  promoLabel: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: 12,
+  },
+  promoRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  promoInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 15, 18, 0.8)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  promoInput: {
+    flex: 1,
+    marginLeft: 12,
+    color: '#FFF',
+    fontFamily: FontFamily.medium,
+    fontSize: 14,
+  },
+  promoApplyBtn: {
+    backgroundColor: 'rgba(201, 169, 98, 0.1)',
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.4)',
+  },
+  promoAppliedBtn: {
+    backgroundColor: 'rgba(201, 169, 98, 0.3)',
+  },
+  promoApplyText: {
+    color: Colors.gold,
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  promoSuccessMsg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
+  promoSuccessText: {
+    color: Colors.gold,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   summaryBar: {
-    elevation: 10,
-    shadowColor: 'rgba(27, 42, 74, 0.1)',
-    shadowOffset: { width: 0, height: -4 },
-    shadowRadius: 16,
-    shadowOpacity: 1,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 16,
+    paddingHorizontal: 24,
+    paddingBottom: 80,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  summaryHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  summaryDetails: {
+    marginBottom: 20,
+  },
+  summaryRowItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  summaryLabel: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 13,
+  },
+  summaryValue: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 12,
+  },
+  totalLabel: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  totalValue: {
+    color: Colors.gold,
+    fontSize: 20,
+    fontWeight: '700',
+    fontFamily: FontFamily.display,
+  },
+  checkoutBtn: {
+    backgroundColor: Colors.gold,
+    borderRadius: 20,
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  checkoutBtnText: {
+    color: '#000',
+    fontWeight: '800',
+    fontSize: 15,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
 });

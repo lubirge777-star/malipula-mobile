@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  StatusBar,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { Colors, FontFamily, getThemeColors } from '../../../src/theme';
+import { GlassView } from '../../../src/components/ui';
 
 const upcomingAppointments = [
   {
@@ -60,130 +61,123 @@ const pastAppointments = [
 ];
 
 const statusConfig: Record<string, { color: string; bg: string; label: string }> = {
-  confirmed: { color: '#059669', bg: '#D1FAE5', label: 'Confirmed' },
-  pending: { color: '#D97706', bg: '#FEF3C7', label: 'Pending' },
-  completed: { color: '#6B6361', bg: '#F3F4F6', label: 'Completed' },
-  cancelled: { color: '#DC2626', bg: '#FEE2E2', label: 'Cancelled' },
+  confirmed: { color: Colors.gold, bg: 'rgba(201, 169, 98, 0.15)', label: 'Confirmed' },
+  pending: { color: '#EAB308', bg: 'rgba(234, 179, 8, 0.15)', label: 'Pending' },
+  completed: { color: '#9CA3AF', bg: 'rgba(156, 163, 175, 0.15)', label: 'Completed' },
+  cancelled: { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', label: 'Cancelled' },
 };
 
 export default function BookingsScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const theme = getThemeColors(isDark ? 'dark' : 'light');
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const appointments = activeTab === 'upcoming' ? upcomingAppointments : pastAppointments;
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       {/* Header */}
-      <View className="px-4 pt-4 pb-3">
-        <Text className="font-heading text-2xl text-navy">Appointments</Text>
-        <Text className="text-charcoal/60 text-sm mt-0.5">Manage your fitting sessions</Text>
+      <View style={[styles.header, { backgroundColor: theme.background }]}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Appointments</Text>
+        <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>Manage your bespoke sessions</Text>
       </View>
 
       {/* Tab Switcher */}
-      <View className="mx-4 mb-4 flex-row bg-white rounded-xl p-1 shadow-sm">
+      <View style={styles.tabContainer}>
         <TouchableOpacity
-          className={`flex-1 py-2.5 rounded-lg items-center ${
-            activeTab === 'upcoming' ? 'bg-gold' : ''
-          }`}
+          style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
           onPress={() => setActiveTab('upcoming')}
         >
-          <Text className={`text-sm font-semibold ${activeTab === 'upcoming' ? 'text-navy' : 'text-charcoal'}`}>
+          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>
             Upcoming ({upcomingAppointments.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 py-2.5 rounded-lg items-center ${
-            activeTab === 'past' ? 'bg-gold' : ''
-          }`}
+          style={[styles.tab, activeTab === 'past' && styles.activeTab]}
           onPress={() => setActiveTab('past')}
         >
-          <Text className={`text-sm font-semibold ${activeTab === 'past' ? 'text-navy' : 'text-charcoal'}`}>
+          <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>
             Past
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Appointments List */}
-      <ScrollView showsVerticalScrollIndicator={false} className="px-4 pb-28">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {appointments.length === 0 ? (
-          <View className="items-center justify-center py-16">
-            <View className="w-20 h-20 bg-gold/10 rounded-full items-center justify-center mb-4">
-              <Ionicons name="calendar-outline" size={36} color={GOLD} />
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconWrapper}>
+              <Ionicons name="calendar-outline" size={36} color={Colors.gold} />
             </View>
-            <Text className="font-heading text-lg text-navy mb-1">No Appointments</Text>
-            <Text className="text-charcoal/60 text-sm text-center max-w-[250px] mb-4">
+            <Text style={styles.emptyTitle}>No Appointments</Text>
+            <Text style={styles.emptySubtitle}>
               {activeTab === 'upcoming'
-                ? "You don't have any upcoming appointments. Book one now!"
+                ? "You don't have any upcoming appointments. Book one now to start your bespoke journey."
                 : "Your completed appointments will appear here."}
             </Text>
             {activeTab === 'upcoming' && (
               <TouchableOpacity
-                className="bg-gold px-6 py-3 rounded-xl"
+                style={styles.emptyBtn}
                 onPress={() => router.push('/booking/wizard')}
               >
-                <Text className="text-navy font-semibold">Book Appointment</Text>
+                <Text style={styles.emptyBtnText}>Book Appointment</Text>
               </TouchableOpacity>
             )}
           </View>
         ) : (
-          <View className="gap-3">
+          <View style={styles.listContainer}>
             {appointments.map((apt) => {
               const status = statusConfig[apt.status];
               return (
-                <TouchableOpacity
-                  key={apt.id}
-                  className="bg-white rounded-2xl p-4 shadow-sm"
-                  activeOpacity={0.85}
-                >
-                  <View className="flex-row items-start justify-between mb-3">
-                    <View className="flex-1">
-                      <Text className="font-semibold text-navy text-base">{apt.type}</Text>
-                      <View className="flex-row items-center gap-1.5 mt-1">
-                        <Ionicons name="location-outline" size={14} color="#6B6361" />
-                        <Text className="text-charcoal/60 text-xs">{apt.location}</Text>
+                <GlassView intensity={20} style={styles.card} key={apt.id}>
+                  <View style={styles.cardHeader}>
+                    <View style={styles.cardHeaderLeft}>
+                      <Text style={styles.cardType}>{apt.type}</Text>
+                      <View style={styles.locationRow}>
+                        <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.4)" />
+                        <Text style={styles.locationText}>{apt.location}</Text>
                       </View>
                     </View>
-                    <View
-                      className="px-2.5 py-1 rounded-full"
-                      style={{ backgroundColor: status.bg }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: status.color }}>
+                    <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+                      <Text style={[styles.statusText, { color: status.color }]}>
                         {status.label}
                       </Text>
                     </View>
                   </View>
 
-                  <View className="flex-row items-center gap-4 mb-3 pl-1">
-                    <View className="flex-row items-center gap-1.5">
-                      <Ionicons name="calendar-outline" size={14} color={GOLD} />
-                      <Text className="text-sm text-navy">{apt.date}</Text>
+                  <View style={styles.dateTimeContainer}>
+                    <View style={styles.dateTimeRow}>
+                      <Ionicons name="calendar-outline" size={16} color={Colors.gold} />
+                      <Text style={styles.dateTimeText}>{apt.date}</Text>
                     </View>
-                    <View className="flex-row items-center gap-1.5">
-                      <Ionicons name="time-outline" size={14} color={GOLD} />
-                      <Text className="text-sm text-navy">{apt.time}</Text>
+                    <View style={styles.dateTimeRow}>
+                      <Ionicons name="time-outline" size={16} color={Colors.gold} />
+                      <Text style={styles.dateTimeText}>{apt.time}</Text>
                     </View>
                   </View>
 
-                  <View className="flex-row items-center justify-between pt-3 border-t border-gray-100">
-                    <View className="flex-row items-center gap-2.5">
+                  <View style={styles.cardFooter}>
+                    <View style={styles.stylistContainer}>
                       <Image
                         source={{ uri: apt.stylistImage }}
-                        className="w-8 h-8 rounded-full"
+                        style={styles.stylistImage}
                       />
                       <View>
-                        <Text className="text-xs text-charcoal/50">Stylist</Text>
-                        <Text className="text-sm text-navy font-medium">{apt.stylist}</Text>
+                        <Text style={styles.stylistLabel}>Stylist</Text>
+                        <Text style={styles.stylistName}>{apt.stylist}</Text>
                       </View>
                     </View>
                     {apt.status !== 'completed' && (
-                      <TouchableOpacity className="flex-row items-center gap-1 bg-red-50 px-3 py-1.5 rounded-lg">
-                        <Ionicons name="close-outline" size={14} color="#DC2626" />
-                        <Text className="text-xs text-red-600 font-medium">Cancel</Text>
+                      <TouchableOpacity style={styles.cancelBtn}>
+                        <Ionicons name="close-outline" size={16} color="#EF4444" />
+                        <Text style={styles.cancelBtnText}>Cancel</Text>
                       </TouchableOpacity>
                     )}
                   </View>
-                </TouchableOpacity>
+                </GlassView>
               );
             })}
           </View>
@@ -193,13 +187,12 @@ export default function BookingsScreen() {
       {/* Book Appointment FAB */}
       {activeTab === 'upcoming' && appointments.length > 0 && (
         <TouchableOpacity
-          className="absolute bottom-24 right-4 bg-gold px-5 py-3.5 rounded-2xl shadow-lg flex-row items-center gap-2"
           style={styles.fab}
           onPress={() => router.push('/booking/wizard')}
           activeOpacity={0.85}
         >
-          <Ionicons name="add" size={20} color="#FFFFFF" />
-          <Text className="text-navy font-semibold text-sm">Book Appointment</Text>
+          <Ionicons name="add" size={20} color="#000" />
+          <Text style={styles.fabText}>Book Appointment</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -207,11 +200,230 @@ export default function BookingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 24,
+  },
+  headerTitle: {
+    fontFamily: FontFamily.display,
+    fontSize: 28,
+    color: '#FFF',
+    fontWeight: '700',
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 14,
+    marginTop: 4,
+    fontFamily: FontFamily.medium,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 24,
+    marginBottom: 24,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  activeTab: {
+    backgroundColor: 'rgba(201, 169, 98, 0.15)',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  activeTabText: {
+    color: Colors.gold,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 64,
+    paddingHorizontal: 32,
+  },
+  emptyIconWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(201, 169, 98, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 169, 98, 0.3)',
+  },
+  emptyTitle: {
+    fontFamily: FontFamily.display,
+    fontSize: 20,
+    color: '#FFF',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  emptyBtn: {
+    backgroundColor: Colors.gold,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 24,
+  },
+  emptyBtnText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 120,
+  },
+  listContainer: {
+    gap: 16,
+  },
+  card: {
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: 'rgba(15, 15, 18, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  cardHeaderLeft: {
+    flex: 1,
+  },
+  cardType: {
+    fontFamily: FontFamily.display,
+    fontSize: 18,
+    color: '#FFF',
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  locationText: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 13,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  dateTimeContainer: {
+    flexDirection: 'row',
+    gap: 24,
+    marginBottom: 20,
+  },
+  dateTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dateTimeText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  stylistContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  stylistImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  stylistLabel: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.4)',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  stylistName: {
+    fontSize: 14,
+    color: '#FFF',
+    fontWeight: '600',
+  },
+  cancelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  cancelBtnText: {
+    fontSize: 12,
+    color: '#EF4444',
+    fontWeight: '600',
+  },
   fab: {
-    elevation: 6,
-    shadowColor: 'rgba(201, 169, 98, 0.4)',
+    position: 'absolute',
+    bottom: 90,
+    right: 24,
+    backgroundColor: Colors.gold,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    elevation: 8,
+    shadowColor: Colors.gold,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
-    shadowOpacity: 1,
+    shadowOpacity: 0.3,
+  },
+  fabText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 15,
   },
 });

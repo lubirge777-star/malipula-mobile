@@ -41,19 +41,19 @@ export default function MeasurementProfilesScreen() {
         <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
             <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text className="font-heading text-xl text-navy dark:text-ivory">AI Measurements</Text>
+        <Text className="font-heading text-xl" style={{ color: theme.text }}>AI Measurements</Text>
         <View className="w-10" />
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}>
         {/* Info Card */}
-        <GlassView intensity={10} className="p-6 rounded-[32px] border border-gold/10 mb-8 items-center bg-gold/5">
-            <View className="w-12 h-12 bg-gold/20 rounded-full items-center justify-center mb-4">
+        <GlassView intensity={10} className="p-6 rounded-[32px] border mb-8 items-center" style={{ borderColor: 'rgba(201,169,98,0.1)', backgroundColor: 'rgba(201,169,98,0.05)' }}>
+            <View className="w-12 h-12 rounded-full items-center justify-center mb-4" style={{ backgroundColor: 'rgba(201,169,98,0.2)' }}>
                 <Ionicons name="shield-checkmark" size={24} color={Colors.gold} />
             </View>
             <Text className="text-gold font-bold text-[10px] uppercase tracking-widest mb-1">Precision Verified</Text>
-            <Text className="text-navy dark:text-ivory font-display text-2xl text-center">Your Sartorial DNA</Text>
-            <Text className="text-app-text-secondary text-center text-xs mt-2 px-4">
+            <Text className="font-display text-2xl text-center" style={{ color: theme.text }}>Your Sartorial DNA</Text>
+            <Text className="text-center text-xs mt-2 px-4" style={{ color: theme.textSecondary }}>
                 Measurements captured via AI Scan. These are used for your {new Date().getFullYear()} bespoke orders.
             </Text>
         </GlassView>
@@ -72,10 +72,10 @@ export default function MeasurementProfilesScreen() {
                             style={[styles.metricCard, { backgroundColor: theme.surface, borderColor: 'rgba(193, 163, 98, 0.1)' }]}
                             className="w-[47%] p-5 rounded-[24px] border"
                         >
-                            <Text className="text-gray-400 text-[10px] uppercase tracking-tighter mb-1">{m.label}</Text>
+                            <Text className="text-[10px] uppercase tracking-tighter mb-1" style={{ color: theme.textSecondary }}>{m.label}</Text>
                             <View className="flex-row items-baseline gap-1">
-                                <Text className="font-display text-2xl text-navy dark:text-ivory">{m.value}</Text>
-                                <Text className="text-app-text-secondary text-[10px]">{m.unit}</Text>
+                                <Text className="font-display text-2xl" style={{ color: theme.text }}>{m.value}</Text>
+                                <Text className="text-[10px]" style={{ color: theme.textSecondary }}>{m.unit}</Text>
                             </View>
                         </View>
                     ))}
@@ -83,8 +83,8 @@ export default function MeasurementProfilesScreen() {
             </View>
         ))}
 
-        <View className="mt-4 p-6 bg-app-surface border border-gold/10 rounded-[28px] items-center">
-            <Text className="text-app-text-secondary text-center text-[11px] leading-4">
+        <View className="mt-4 p-6 border rounded-[28px] items-center" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+            <Text className="text-center text-[11px] leading-4" style={{ color: theme.textSecondary }}>
                 You can retake measurements at any time if your physique changes. Note that drastic changes might affect existing orders.
             </Text>
             <TouchableOpacity className="mt-4">
@@ -94,7 +94,7 @@ export default function MeasurementProfilesScreen() {
       </ScrollView>
 
       {/* Footer Actions */}
-      <View className="p-8 border-t border-gold/10 bg-app-background">
+      <View className="p-8 border-t" style={{ backgroundColor: theme.background, borderColor: theme.border }}>
         <Button 
             title="Finalize & Proceed to Checkout" 
             variant="luxury" 

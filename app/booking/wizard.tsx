@@ -9,9 +9,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useColorScheme } from 'react-native';
+import { Colors, getThemeColors } from '../../src/theme';
 
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+const GOLD = Colors.gold;
+const NAVY = Colors.navy;
 
 const appointmentTypes = [
   { id: 'in-store', icon: 'storefront-outline' as const, title: 'In-Store Fitting', desc: 'Visit our boutique for a personal fitting session', duration: '45 min' },
@@ -59,6 +61,8 @@ const stepLabels = ['Type', 'Date & Time', 'Stylist', 'Confirm'];
 
 export default function BookingWizardScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(0);
@@ -88,14 +92,14 @@ export default function BookingWizardScreen() {
   };
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
       {/* Header */}
       <View className="px-4 pt-4 pb-3 flex-row items-center gap-3">
         <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">Book Appointment</Text>
+          <Text className="font-heading text-xl" style={{ color: theme.text }}>Book Appointment</Text>
         </View>
         <TouchableOpacity onPress={() => { setCurrentStep(0); setSelectedType(null); setSelectedTime(null); setSelectedStylist(null); }}>
           <Text className="text-gold text-sm font-medium">Reset</Text>
@@ -108,21 +112,20 @@ export default function BookingWizardScreen() {
           {stepLabels.map((label, index) => (
             <View key={label} className="flex-1 items-center">
               <View
-                className={`w-8 h-8 rounded-full items-center justify-center ${
-                  index <= currentStep ? 'bg-gold' : 'bg-gray-200'
-                }`}
+                className={`w-8 h-8 rounded-full items-center justify-center`}
+                style={{ backgroundColor: index <= currentStep ? GOLD : theme.border }}
               >
-                <Text className={`text-xs font-bold ${index <= currentStep ? 'text-navy' : 'text-charcoal/50'}`}>
+                <Text style={{ color: index <= currentStep ? NAVY : theme.textSecondary, fontWeight: 'bold', fontSize: 12 }}>
                   {index + 1}
                 </Text>
               </View>
-              <Text className={`text-[10px] mt-1 ${index <= currentStep ? 'text-navy font-medium' : 'text-charcoal/40'}`}>
+              <Text className="text-[10px] mt-1" style={{ color: index <= currentStep ? theme.text : theme.textSecondary, fontWeight: index <= currentStep ? '500' : 'normal' }}>
                 {label}
               </Text>
             </View>
           ))}
         </View>
-        <View className="h-1 bg-gray-200 rounded-full overflow-hidden">
+        <View className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: theme.border }}>
           <View
             className="h-full bg-gold rounded-full"
             style={{ width: `${((currentStep + 1) / 4) * 100}%` }}
@@ -134,25 +137,26 @@ export default function BookingWizardScreen() {
         {/* Step 1: Appointment Type */}
         {currentStep === 0 && (
           <View className="gap-3">
-            <Text className="font-heading text-lg text-navy mb-1">Select Appointment Type</Text>
+            <Text className="font-heading text-lg mb-1" style={{ color: theme.text }}>Select Appointment Type</Text>
             {appointmentTypes.map((type) => (
               <TouchableOpacity
                 key={type.id}
-                className={`bg-white rounded-2xl p-4 shadow-sm border-2 ${
+                className={`rounded-2xl p-4 shadow-sm border-2 ${
                   selectedType === type.id ? 'border-gold' : 'border-transparent'
                 }`}
+                style={{ backgroundColor: theme.surface }}
                 onPress={() => setSelectedType(type.id)}
                 activeOpacity={0.85}
               >
                 <View className="flex-row items-start gap-3.5">
-                  <View className={`w-12 h-12 rounded-xl items-center justify-center ${
-                    selectedType === type.id ? 'bg-gold/20' : 'bg-ivory'
-                  }`}>
-                    <Ionicons name={type.icon} size={22} color={selectedType === type.id ? GOLD : NAVY} />
+                  <View className={`w-12 h-12 rounded-xl items-center justify-center`}
+                    style={{ backgroundColor: selectedType === type.id ? 'rgba(201, 169, 98, 0.2)' : theme.background }}
+                  >
+                    <Ionicons name={type.icon} size={22} color={selectedType === type.id ? GOLD : theme.text} />
                   </View>
                   <View className="flex-1">
-                    <Text className="font-semibold text-navy text-base">{type.title}</Text>
-                    <Text className="text-charcoal/60 text-xs mt-0.5 leading-relaxed">{type.desc}</Text>
+                    <Text className="font-semibold text-base" style={{ color: theme.text }}>{type.title}</Text>
+                    <Text className="text-xs mt-0.5 leading-relaxed" style={{ color: theme.textSecondary }}>{type.desc}</Text>
                     <View className="flex-row items-center gap-1 mt-2">
                       <Ionicons name="time-outline" size={12} color={GOLD} />
                       <Text className="text-gold text-xs font-medium">{type.duration}</Text>
@@ -172,26 +176,25 @@ export default function BookingWizardScreen() {
         {/* Step 2: Date & Time */}
         {currentStep === 1 && (
           <View>
-            <Text className="font-heading text-lg text-navy mb-1">Select Date & Time</Text>
+            <Text className="font-heading text-lg mb-1" style={{ color: theme.text }}>Select Date & Time</Text>
 
             {/* Calendar Dates */}
-            <Text className="text-sm font-semibold text-charcoal/60 mb-2">Available Dates</Text>
+            <Text className="text-sm font-semibold mb-2" style={{ color: theme.textSecondary }}>Available Dates</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2 mb-5">
               {dates.map((d, index) => (
                 <TouchableOpacity
                   key={d.fullDate}
-                  className={`w-16 py-3 rounded-xl items-center ${
-                    selectedDate === index ? 'bg-gold' : 'bg-white'
-                  }`}
+                  className={`w-16 py-3 rounded-xl items-center`}
+                  style={{ backgroundColor: selectedDate === index ? GOLD : theme.surface }}
                   onPress={() => setSelectedDate(index)}
                 >
-                  <Text className={`text-[10px] ${selectedDate === index ? 'text-navy/60' : 'text-charcoal/40'}`}>
+                  <Text className="text-[10px]" style={{ color: selectedDate === index ? NAVY : theme.textSecondary }}>
                     {d.day}
                   </Text>
-                  <Text className={`text-lg font-bold mt-0.5 ${selectedDate === index ? 'text-navy' : 'text-navy'}`}>
+                  <Text className="text-lg font-bold mt-0.5" style={{ color: selectedDate === index ? NAVY : theme.text }}>
                     {d.date}
                   </Text>
-                  <Text className={`text-[10px] ${selectedDate === index ? 'text-navy/60' : 'text-charcoal/40'}`}>
+                  <Text className="text-[10px]" style={{ color: selectedDate === index ? NAVY : theme.textSecondary }}>
                     {d.month}
                   </Text>
                 </TouchableOpacity>
@@ -199,17 +202,16 @@ export default function BookingWizardScreen() {
             </ScrollView>
 
             {/* Time Slots */}
-            <Text className="text-sm font-semibold text-charcoal/60 mb-2">Available Times</Text>
+            <Text className="text-sm font-semibold mb-2" style={{ color: theme.textSecondary }}>Available Times</Text>
             <View className="flex-row flex-wrap gap-2">
               {timeSlots.map((time) => (
                 <TouchableOpacity
                   key={time}
-                  className={`px-4 py-2.5 rounded-xl ${
-                    selectedTime === time ? 'bg-gold' : 'bg-white'
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl`}
+                  style={{ backgroundColor: selectedTime === time ? GOLD : theme.surface }}
                   onPress={() => setSelectedTime(time)}
                 >
-                  <Text className={`text-sm font-medium ${selectedTime === time ? 'text-navy' : 'text-charcoal'}`}>
+                  <Text className="text-sm font-medium" style={{ color: selectedTime === time ? NAVY : theme.text }}>
                     {time}
                   </Text>
                 </TouchableOpacity>
@@ -221,31 +223,34 @@ export default function BookingWizardScreen() {
         {/* Step 3: Stylist */}
         {currentStep === 2 && (
           <View>
-            <Text className="font-heading text-lg text-navy mb-1">Choose Your Stylist</Text>
-            <Text className="text-charcoal/60 text-sm mb-3">Select your preferred stylist or we'll assign one</Text>
+            <Text className="font-heading text-lg mb-1" style={{ color: theme.text }}>Choose Your Stylist</Text>
+            <Text className="text-sm mb-3" style={{ color: theme.textSecondary }}>Select your preferred stylist or we'll assign one</Text>
             <View className="gap-3">
               {stylists.map((stylist) => (
                 <TouchableOpacity
                   key={stylist.id}
-                  className={`bg-white rounded-2xl p-4 shadow-sm border-2 ${
+                  className={`rounded-2xl p-4 shadow-sm border-2 ${
                     selectedStylist === stylist.id ? 'border-gold' : 'border-transparent'
                   }`}
+                  style={{ backgroundColor: theme.surface }}
                   onPress={() => setSelectedStylist(stylist.id)}
                   activeOpacity={0.85}
                 >
                   <View className="flex-row items-center gap-3.5">
                     <View className={`w-14 h-14 rounded-full items-center justify-center ${
-                      selectedStylist === stylist.id ? 'bg-gold/20 ring-2 ring-gold ring-offset-2' : 'bg-navy/10'
-                    }`}>
-                      <Ionicons name="person" size={24} color={NAVY} />
+                      selectedStylist === stylist.id ? 'ring-2 ring-gold ring-offset-2' : ''
+                    }`}
+                      style={{ backgroundColor: selectedStylist === stylist.id ? 'rgba(201,169,98,0.2)' : theme.background }}
+                    >
+                      <Ionicons name="person" size={24} color={theme.text} />
                     </View>
                     <View className="flex-1">
-                      <Text className="font-semibold text-navy text-base">{stylist.name}</Text>
-                      <Text className="text-charcoal/60 text-xs">{stylist.specialty}</Text>
+                      <Text className="font-semibold text-base" style={{ color: theme.text }}>{stylist.name}</Text>
+                      <Text className="text-xs" style={{ color: theme.textSecondary }}>{stylist.specialty}</Text>
                       <View className="flex-row items-center gap-1 mt-1">
                         <Ionicons name="star" size={12} color={GOLD} />
-                        <Text className="text-xs text-navy font-medium">{stylist.rating}</Text>
-                        <Text className="text-xs text-charcoal/40">({stylist.reviews} reviews)</Text>
+                        <Text className="text-xs font-medium" style={{ color: theme.text }}>{stylist.rating}</Text>
+                        <Text className="text-xs" style={{ color: theme.textSecondary }}>({stylist.reviews} reviews)</Text>
                       </View>
                     </View>
                     {selectedStylist === stylist.id && (
@@ -263,29 +268,29 @@ export default function BookingWizardScreen() {
         {/* Step 4: Contact Details & Confirm */}
         {currentStep === 3 && (
           <View>
-            <Text className="font-heading text-lg text-navy mb-1">Contact Details</Text>
+            <Text className="font-heading text-lg mb-1" style={{ color: theme.text }}>Contact Details</Text>
 
             {/* Summary Card */}
-            <View className="bg-white rounded-2xl p-4 shadow-sm mb-5">
-              <Text className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider mb-3">Booking Summary</Text>
+            <View className="rounded-2xl p-4 shadow-sm mb-5" style={{ backgroundColor: theme.surface }}>
+              <Text className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: theme.textSecondary }}>Booking Summary</Text>
               <View className="space-y-2.5">
                 <View className="flex-row justify-between">
-                  <Text className="text-charcoal/60 text-sm">Type</Text>
-                  <Text className="text-navy text-sm font-medium">
+                  <Text className="text-sm" style={{ color: theme.textSecondary }}>Type</Text>
+                  <Text className="text-sm font-medium" style={{ color: theme.text }}>
                     {appointmentTypes.find((t) => t.id === selectedType)?.title}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-charcoal/60 text-sm">Date</Text>
-                  <Text className="text-navy text-sm font-medium">{dates[selectedDate]?.fullDate}</Text>
+                  <Text className="text-sm" style={{ color: theme.textSecondary }}>Date</Text>
+                  <Text className="text-sm font-medium" style={{ color: theme.text }}>{dates[selectedDate]?.fullDate}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-charcoal/60 text-sm">Time</Text>
-                  <Text className="text-navy text-sm font-medium">{selectedTime}</Text>
+                  <Text className="text-sm" style={{ color: theme.textSecondary }}>Time</Text>
+                  <Text className="text-sm font-medium" style={{ color: theme.text }}>{selectedTime}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-charcoal/60 text-sm">Stylist</Text>
-                  <Text className="text-navy text-sm font-medium">
+                  <Text className="text-sm" style={{ color: theme.textSecondary }}>Stylist</Text>
+                  <Text className="text-sm font-medium" style={{ color: theme.text }}>
                     {stylists.find((s) => s.id === selectedStylist)?.name}
                   </Text>
                 </View>
@@ -295,36 +300,42 @@ export default function BookingWizardScreen() {
             {/* Contact Form */}
             <View className="space-y-3">
               <View>
-                <Text className="text-sm font-medium text-navy mb-1.5">Full Name</Text>
-                <View className="bg-white rounded-xl px-3.5 py-3 shadow-sm">
+                <Text className="text-sm font-medium mb-1.5" style={{ color: theme.text }}>Full Name</Text>
+                <View className="rounded-xl px-3.5 py-3 shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
                   <TextInput
-                    className="text-sm text-navy"
+                    className="text-sm"
+                    style={{ color: theme.text }}
                     value={name}
                     onChangeText={setName}
                     placeholder="Enter your name"
+                    placeholderTextColor={theme.textSecondary}
                   />
                 </View>
               </View>
               <View>
-                <Text className="text-sm font-medium text-navy mb-1.5">Phone Number</Text>
-                <View className="bg-white rounded-xl px-3.5 py-3 shadow-sm">
+                <Text className="text-sm font-medium mb-1.5" style={{ color: theme.text }}>Phone Number</Text>
+                <View className="rounded-xl px-3.5 py-3 shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
                   <TextInput
-                    className="text-sm text-navy"
+                    className="text-sm"
+                    style={{ color: theme.text }}
                     value={phone}
                     onChangeText={setPhone}
                     placeholder="+255 xxx xxx xxx"
+                    placeholderTextColor={theme.textSecondary}
                     keyboardType="phone-pad"
                   />
                 </View>
               </View>
               <View>
-                <Text className="text-sm font-medium text-navy mb-1.5">Special Notes (Optional)</Text>
-                <View className="bg-white rounded-xl px-3.5 py-3 shadow-sm">
+                <Text className="text-sm font-medium mb-1.5" style={{ color: theme.text }}>Special Notes (Optional)</Text>
+                <View className="rounded-xl px-3.5 py-3 shadow-sm border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
                   <TextInput
-                    className="text-sm text-navy"
+                    className="text-sm"
+                    style={{ color: theme.text }}
                     value={notes}
                     onChangeText={setNotes}
                     placeholder="Any special requests..."
+                    placeholderTextColor={theme.textSecondary}
                     multiline
                     numberOfLines={3}
                   />
@@ -336,22 +347,23 @@ export default function BookingWizardScreen() {
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pt-3 pb-8 shadow-lg" style={styles.stickyBar}>
+      <View className="absolute bottom-0 left-0 right-0 px-4 pt-3 pb-8 shadow-lg" style={[styles.stickyBar, { backgroundColor: theme.surface, borderTopColor: theme.border, borderTopWidth: 1 }]}>
         {currentStep > 0 && (
           <TouchableOpacity
             className="absolute left-4 top-3 p-2"
             onPress={() => setCurrentStep(currentStep - 1)}
           >
-            <Ionicons name="arrow-back" size={20} color={NAVY} />
+            <Ionicons name="arrow-back" size={20} color={theme.text} />
           </TouchableOpacity>
         )}
         <TouchableOpacity
           className={`py-3.5 rounded-xl items-center ${canProceed() ? 'bg-gold' : 'bg-gray-200'}`}
+          style={!canProceed() ? { backgroundColor: theme.border } : {}}
           onPress={handleNext}
           disabled={!canProceed()}
           activeOpacity={0.85}
         >
-          <Text className={`font-bold text-sm ${canProceed() ? 'text-navy' : 'text-charcoal/40'}`}>
+          <Text className={`font-bold text-sm ${canProceed() ? 'text-navy' : 'text-charcoal/40'}`} style={!canProceed() ? { color: theme.textSecondary } : { color: NAVY }}>
             {currentStep === 3 ? 'Confirm Booking' : 'Continue'}
           </Text>
         </TouchableOpacity>

@@ -8,9 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const GOLD = '#C9A962';
-const NAVY = '#1B2A4A';
+import { useColorScheme } from 'react-native';
+import { getThemeColors, Colors } from '../../src/theme';
 
 type SettingItem = {
   id: string;
@@ -61,6 +60,8 @@ const settingsGroups: SettingGroup[] = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme === 'dark' ? 'dark' : 'light');
   const [toggles, setToggles] = useState<Record<string, boolean>>({
     darkMode: false,
     pushNotif: true,
@@ -75,35 +76,34 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-ivory">
+    <View className="flex-1" style={{ backgroundColor: theme.background }}>
       {/* Header */}
       <View className="px-4 pt-4 pb-3 flex-row items-center gap-3">
         <TouchableOpacity className="p-1" onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={NAVY} />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <View className="flex-1">
-          <Text className="font-heading text-xl text-navy">Settings</Text>
+          <Text className="font-heading text-xl" style={{ color: theme.text }}>Settings</Text>
         </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="px-4 pb-8">
         {settingsGroups.map((group) => (
           <View key={group.title} className="mb-5 mt-1">
-            <Text className="text-charcoal/50 text-xs font-semibold uppercase tracking-wider mb-2 pl-1">
+            <Text className="text-xs font-semibold uppercase tracking-wider mb-2 pl-1" style={{ color: theme.textSecondary }}>
               {group.title}
             </Text>
-            <View className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <View className="rounded-2xl shadow-sm overflow-hidden border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
               {group.items.map((item, index) => (
                 <View
                   key={item.id}
-                  className={`flex-row items-center px-4 py-3.5 ${
-                    index < group.items.length - 1 ? 'border-b border-gray-50' : ''
-                  }`}
+                  className={`flex-row items-center px-4 py-3.5`}
+                  style={{ borderBottomWidth: index < group.items.length - 1 ? 1 : 0, borderBottomColor: theme.border }}
                 >
-                  <View className="w-9 h-9 rounded-xl bg-ivory items-center justify-center mr-3">
-                    <Ionicons name={item.icon} size={18} color={NAVY} />
+                  <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: theme.background }}>
+                    <Ionicons name={item.icon} size={18} color={theme.text} />
                   </View>
-                  <Text className="flex-1 text-navy text-sm font-medium">{item.label}</Text>
+                  <Text className="flex-1 text-sm font-medium" style={{ color: theme.text }}>{item.label}</Text>
                   {item.type === 'toggle' ? (
                     <Switch
                       value={toggles[item.id] || false}
@@ -115,9 +115,9 @@ export default function SettingsScreen() {
                   ) : (
                     <View className="flex-row items-center gap-1.5">
                       {item.value && (
-                        <Text className="text-charcoal/50 text-xs mr-1">{item.value}</Text>
+                        <Text className="text-xs mr-1" style={{ color: theme.textSecondary }}>{item.value}</Text>
                       )}
-                      <Ionicons name="chevron-forward" size={18} color="#6B636180" />
+                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
                     </View>
                   )}
                 </View>
@@ -128,12 +128,12 @@ export default function SettingsScreen() {
 
         {/* Version Info */}
         <View className="mt-4 items-center">
-          <Text className="text-charcoal/30 text-xs">Malipula Suits v1.0.0</Text>
-          <Text className="text-charcoal/30 text-[10px] mt-0.5">Build 2025.01.15</Text>
+          <Text className="text-xs" style={{ color: theme.textSecondary }}>Malipula Suits v1.0.0</Text>
+          <Text className="text-[10px] mt-0.5" style={{ color: theme.textSecondary }}>Build 2025.01.15</Text>
         </View>
 
         {/* Logout */}
-        <TouchableOpacity className="bg-white rounded-2xl p-4 flex-row items-center justify-center shadow-sm mt-4">
+        <TouchableOpacity className="rounded-2xl p-4 flex-row items-center justify-center shadow-sm mt-4 border" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
           <Ionicons name="log-out-outline" size={18} color="#DC2626" />
           <Text className="text-red-500 font-semibold text-sm ml-2">Sign Out</Text>
         </TouchableOpacity>

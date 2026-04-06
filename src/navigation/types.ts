@@ -1,6 +1,6 @@
 // Navigation type definitions for Malipula Suits app
 
-export type TabName = 'home' | 'shop' | 'builder' | 'chat' | 'account';
+export type TabName = 'home' | 'shop' | 'builder' | 'bookings' | 'account' | 'cart';
 
 export interface TabRoute {
   name: TabName;
@@ -21,24 +21,25 @@ export const TAB_ROUTES: TabRoute[] = [
   },
   {
     name: 'shop',
-    label: 'Fabrics',
-    icon: 'journal-outline',
-    activeIcon: 'journal',
+    label: 'Suits',
+    icon: 'briefcase-outline',
+    activeIcon: 'briefcase',
     route: '/shop',
   },
   {
     name: 'builder',
     label: 'Build',
-    icon: 'cube-outline',
-    activeIcon: 'cube',
+    icon: 'cut-outline',
+    activeIcon: 'cut',
     route: '/builder',
+    isFAB: true,
   },
   {
-    name: 'chat',
-    label: 'Chat',
-    icon: 'chatbubbles-outline',
-    activeIcon: 'chatbubbles',
-    route: '/chat',
+    name: 'bookings',
+    label: 'Book',
+    icon: 'calendar-outline',
+    activeIcon: 'calendar',
+    route: '/bookings',
   },
   {
     name: 'account',

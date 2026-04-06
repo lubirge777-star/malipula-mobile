@@ -11,6 +11,8 @@ export const Colors = {
   navyLight: '#2A3F6B',
   ivory: '#FCFAF2',
   charcoal: '#2D2D2D',
+  white: '#FFFFFF',
+  black: '#000000',
 
   // Semantic
   success: '#2D7A4F',
@@ -19,11 +21,11 @@ export const Colors = {
   info: '#2E86AB',
 
   // Adaptive (light)
-  backgroundLight: '#FAFAF5',
+  backgroundLight: '#FFFFFF',
   surfaceLight: '#FFFFFF',
-  textLight: '#1A1714',
-  textSecondaryLight: '#6B6361',
-  borderLight: '#E8E4DF',
+  textLight: '#0F0F12',
+  textSecondaryLight: '#666666',
+  borderLight: '#F0F0F0',
 
   // Adaptive (dark)
   backgroundDark: '#0F0F12',
@@ -62,12 +64,12 @@ export function getThemeColors(scheme: ColorScheme): ThemeColors {
   return {
     background: Colors.backgroundLight,
     surface: Colors.surfaceLight,
-    surfaceElevated: '#F5F3EE',
+    surfaceElevated: '#F9F9F9',
     text: Colors.textLight,
     textSecondary: Colors.textSecondaryLight,
     border: Colors.borderLight,
-    borderLight: '#F0EDE8',
-    overlay: 'rgba(0, 0, 0, 0.4)',
+    borderLight: '#EEEEEE',
+    overlay: 'rgba(0, 0, 0, 0.1)',
   };
 }
 
